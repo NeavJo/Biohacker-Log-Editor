@@ -1019,7 +1019,8 @@
 
           saveBtn.addEventListener('click', async () => {
             const updatedEntry = this.collectEntryFromCard(card, entry);
-            state.entries[index] = updatedEntry;
+            const originalIndex = state.entries.findIndex(e => e.date === entry.date);
+            state.entries[originalIndex] = updatedEntry;
             this.setEditMode(card, false);
 
             try {
