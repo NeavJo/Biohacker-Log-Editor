@@ -330,6 +330,32 @@
     </div>
   </div>
 
+  <div id="deleteConfirmOverlay" class="modal-overlay">
+    <div class="modal-content">
+      <div class="text-center">
+        <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+            </path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">确认删除</h2>
+        <p class="text-gray-600 mb-6" id="deleteConfirmText">确定要删除这条记录吗？此操作不可恢复。</p>
+        <div class="flex gap-3 justify-center">
+          <button id="cancelDeleteBtn"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
+            取消
+          </button>
+          <button id="confirmDeleteBtn"
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors">
+            删除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
   <div id="sidebar" class="sidebar">
     <div class="p-3 sm:p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
@@ -413,6 +439,11 @@
         <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">3. Diet:</label>
         <div class="space-y-1 sm:space-y-2">
           <div class="flex items-center gap-2">
+            <span class="text-gray-600 text-xs sm:text-sm">早饭：</span>
+            <input type="text" id="dietBreakfast" placeholder="可选"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div class="flex items-center gap-2">
             <span class="text-gray-600 text-xs sm:text-sm">午饭：</span>
             <input type="text" id="dietLunch" placeholder=""
               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
@@ -486,7 +517,7 @@
     const REGEX = {
       weather: /^(.+?)，(\d+)-(\d+)℃(?:\s*（(.+?)）)?$/,
       sleep: /^(\d{1,2}):(\d{2})\s*睡着，(\d{1,2}):(\d{2})\s*(苏醒|闹钟|自然醒)(?:\s*（(.+?)）)?$/,
-      diet: /^午饭：(.+?)、晚饭：(.*)$/
+      diet: /^(?:早饭：(.*?)、)?午饭：(.*?)、晚饭：(.*)$/
     };
 
     const state = {
@@ -780,13 +811,14 @@
 
         parseDiet(text) {
           if (!text || text === '午饭：、晚饭：') {
-            return { lunch: '', dinner: '' };
+            return { breakfast: '', lunch: '', dinner: '' };
           }
-          const match = text.match(REGEX.diet);
+          const textWithoutNewlines = text.replace(/\n/g, '、');
+          const match = textWithoutNewlines.match(REGEX.diet);
           if (match) {
-            return { lunch: match[1], dinner: match[2] };
+            return { breakfast: match[1] || '', lunch: match[2], dinner: match[3] };
           }
-          return { lunch: '', dinner: text };
+          return { breakfast: '', lunch: '', dinner: text };
         },
 
         parse(text) {
@@ -808,7 +840,7 @@
                 date: line,
                 weather: { description: '', tempLow: null, tempHigh: null, note: '' },
                 sleep: { sleepTime: '', wakeTime: '', wakeType: '', note: '' },
-                diet: { lunch: '', dinner: '' },
+                diet: { breakfast: '', lunch: '', dinner: '' },
                 exercise: '',
                 note: '',
                 specialNotes: []
@@ -871,7 +903,12 @@
         },
 
         stringifyDiet(diet) {
-          return `Diet: 午饭：${diet.lunch}、晚饭：${diet.dinner}`;
+          let result = '';
+          if (diet.breakfast) {
+            result += `早饭：${diet.breakfast}、`;
+          }
+          result += `午饭：${diet.lunch || ''}、晚饭：${diet.dinner || ''}`;
+          return `Diet: ${result}`;
         },
 
         stringifyDateEntry(entry) {
@@ -1028,7 +1065,10 @@
 
           card.innerHTML = `
             <div class="card-header bg-gradient-to-r from-blue-500 to-blue-600 px-4 sm:px-5 py-3 sm:py-4 flex justify-between items-center">
-              <span class="card-title text-white font-bold text-base sm:text-lg">📅 ${entry.date}</span>
+              <div class="flex items-center gap-2">
+                <span class="card-title text-white font-bold text-base sm:text-lg">📅 ${entry.date}</span>
+                <button class="delete-btn hidden px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded-lg transition-colors">🗑️ 删除</button>
+              </div>
               <div class="flex gap-1 sm:gap-2">
                 <button class="card-btn edit-btn px-2 sm:px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs sm:text-sm rounded-lg transition-colors">✏️</button>
                 <button class="card-btn save-btn hidden px-2 sm:px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm rounded-lg transition-colors">💾</button>
@@ -1147,6 +1187,7 @@
           const editBtn = card.querySelector('.edit-btn');
           const saveBtn = card.querySelector('.save-btn');
           const cancelBtn = card.querySelector('.cancel-btn');
+          const deleteBtn = card.querySelector('.delete-btn');
 
           editBtn.addEventListener('click', () => {
             this.setEditMode(card, true);
@@ -1155,6 +1196,13 @@
           cancelBtn.addEventListener('click', () => {
             this.setEditMode(card, false);
             this.renderCards(state.entries);
+          });
+
+          deleteBtn.addEventListener('click', () => {
+            window.currentEntryToDelete = entry;
+            document.getElementById('deleteConfirmText').textContent =
+              `确定要删除 ${entry.date} 的记录吗？此操作不可恢复。`;
+            document.getElementById('deleteConfirmOverlay').classList.add('active');
           });
 
           card.querySelectorAll('.add-special-btn').forEach(btn => {
@@ -1198,12 +1246,14 @@
           const editBtn = card.querySelector('.edit-btn');
           const saveBtn = card.querySelector('.save-btn');
           const cancelBtn = card.querySelector('.cancel-btn');
+          const deleteBtn = card.querySelector('.delete-btn');
 
           viewModes.forEach(el => el.classList.toggle('hidden', isEdit));
           editModes.forEach(el => el.classList.toggle('hidden', !isEdit));
           editBtn.classList.toggle('hidden', isEdit);
           saveBtn.classList.toggle('hidden', !isEdit);
           cancelBtn.classList.toggle('hidden', !isEdit);
+          deleteBtn.classList.toggle('hidden', !isEdit);
         },
 
         collectEntryFromCard(card, originalEntry) {
@@ -1263,10 +1313,18 @@
         },
 
         formatDiet(diet) {
-          if (!diet.lunch && !diet.dinner) {
+          if (!diet.breakfast && !diet.lunch && !diet.dinner) {
             return '-';
           }
-          return `午饭：${diet.lunch || '-'}\n晚饭：${diet.dinner || '-'}`;
+          const parts = [];
+          if (diet.breakfast) {
+            parts.push(`早饭：${diet.breakfast}`);
+          }
+          if (diet.lunch) {
+            parts.push(`午饭：${diet.lunch}`);
+          }
+          parts.push(`晚饭：${diet.dinner || '-'}`);
+          return parts.join('\n');
         },
 
         reconstructWeather(weather) {
@@ -1295,7 +1353,12 @@
         },
 
         reconstructDiet(diet) {
-          return `午饭：${diet.lunch || ''}、晚饭：${diet.dinner || ''}`;
+          let result = '';
+          if (diet.breakfast) {
+            result += `早饭：${diet.breakfast}、`;
+          }
+          result += `午饭：${diet.lunch || ''}、晚饭：${diet.dinner || ''}`;
+          return result;
         }
       };
     }
@@ -1332,6 +1395,7 @@
           document.getElementById('wakeHour').value = '';
           document.getElementById('wakeMin').value = '';
           document.getElementById('sleepNote').value = '';
+          document.getElementById('dietBreakfast').value = '';
           document.getElementById('dietLunch').value = '';
           document.getElementById('dietDinner').value = '';
           document.getElementById('exercise').value = '';
@@ -1442,6 +1506,7 @@
           const wakeMin = document.getElementById('wakeMin').value.trim();
           const sleepNote = document.getElementById('sleepNote').value.trim();
 
+          const dietBreakfast = document.getElementById('dietBreakfast').value.trim();
           const dietLunch = document.getElementById('dietLunch').value.trim();
           const dietDinner = document.getElementById('dietDinner').value.trim();
 
@@ -1463,6 +1528,7 @@
               note: sleepNote
             },
             diet: {
+              breakfast: dietBreakfast,
               lunch: dietLunch,
               dinner: dietDinner
             },
@@ -1588,6 +1654,44 @@
 
       document.getElementById('closeSidebarBtn').addEventListener('click', () => {
         sidebarManager.close();
+      });
+
+      // 删除确认弹窗事件
+      document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteConfirmOverlay').classList.remove('active');
+        window.currentEntryToDelete = null;
+      });
+
+      document.getElementById('deleteConfirmOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('deleteConfirmOverlay')) {
+          document.getElementById('deleteConfirmOverlay').classList.remove('active');
+          window.currentEntryToDelete = null;
+        }
+      });
+
+      document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+        if (!window.currentEntryToDelete) return;
+
+        const entryToDelete = window.currentEntryToDelete;
+        const originalIndex = state.entries.findIndex(e => e.date === entryToDelete.date);
+
+        if (originalIndex !== -1) {
+          state.entries.splice(originalIndex, 1);
+          document.getElementById('deleteConfirmOverlay').classList.remove('active');
+          window.currentEntryToDelete = null;
+
+          try {
+            const content = Stringifier().stringifyAll(state.entries);
+            const result = await Api().putFile(content, `删除健康日志 - ${entryToDelete.date}`);
+            Storage().saveSha(result.content.sha);
+            Toast().show(`已删除 ${entryToDelete.date} 的记录`);
+            Renderer().renderCards(state.entries);
+          } catch (err) {
+            Toast().show(`删除失败: ${err.message}`, 'error');
+            state.entries.splice(originalIndex, 0, entryToDelete);
+            Renderer().renderCards(state.entries);
+          }
+        }
       });
 
       document.getElementById('sidebarOverlay').addEventListener('click', () => {
