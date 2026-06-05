@@ -120,10 +120,34 @@
       text-decoration: underline;
     }
 
+    /* 移动端添加记录按钮 */
+    .add-record-btn-mobile {
+      display: none;
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 77.5px;
+      height: 96.1px;
+      border: none;
+      background: transparent;
+      background-image: url('Skin/Bottons/CreateCard.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .add-record-btn-mobile:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+
     /* 按钮区域 */
     .status-bar .header-actions {
       display: flex;
       gap: 8px;
+      align-items: center;
     }
 
 
@@ -838,6 +862,39 @@
       cursor: not-allowed;
     }
 
+    @media (max-width: 768px) {
+      .add-record-btn {
+        display: none;
+      }
+
+      .add-record-btn-mobile {
+        display: block;
+      }
+
+      .status-bar {
+        justify-content: center;
+      }
+    }
+
+    /* ============================================
+       2376x1080 分辨率适配优化
+       ============================================ */
+    @media screen and (width: 1080px) and (height: 2376px),
+    screen and (width: 2376px) and (height: 1080px) {
+      #app {
+        transform: scale(0.85);
+        transform-origin: center top;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 8px;
+      }
+
+      .glass-window {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
     /* ============================================
        控制台样式
        ============================================ */
@@ -909,6 +966,7 @@
           <span>点击此处添加记录</span>
         </button>
         <div class="header-actions flex gap-1 sm:gap-2">
+          <button id="addRecordBtnMobile" class="add-record-btn-mobile"></button>
           <button id="settingsBtn" class="settings-btn header-btn" title="设置">
             <span>设置</span>
           </button>
@@ -2241,6 +2299,7 @@
       const $ = (id) => document.getElementById(id);
 
       const addRecordBtn = $('addRecordBtn');
+      const addRecordBtnMobile = $('addRecordBtnMobile');
       const settingsBtn = $('settingsBtn');
       const closeSettingsBtn = $('closeSettingsBtn');
       const settingsOverlay = $('settingsOverlay');
@@ -2258,6 +2317,10 @@
       const postalCodeInput = $('postalCode');
 
       addRecordBtn.addEventListener('click', () => {
+        createNewEntry();
+      });
+
+      addRecordBtnMobile.addEventListener('click', () => {
         createNewEntry();
       });
 
