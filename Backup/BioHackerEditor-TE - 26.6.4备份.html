@@ -6,40 +6,487 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BioHacker_Editor</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 40;
+    @font-face {
+      font-family: 'SerenityOS Emoji';
+      font-weight: 400;
+      font-style: normal;
+      font-display: block;
+      src: url('Skin/fonts/SerenityOS-Emoji.ttf') format('truetype');
     }
 
-    .sidebar-overlay.active {
-      opacity: 1;
-      visibility: visible;
+    body {
+      background-image: url('Skin/Background/windows_vista_9.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'SerenityOS Emoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
     }
 
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -100%;
+    /* 设置面板输入框placeholder灰色 */
+    #settingsOverlay input::placeholder {
+      color: #9CA3AF !important;
+    }
+
+    #settingsOverlay textarea::placeholder {
+      color: #9CA3AF !important;
+    }
+
+    /* ============================================
+       顶部状态栏
+       ============================================ */
+    header {
+      position: relative;
       width: 100%;
-      max-width: 400px;
-      height: 100vh;
-      background: white;
-      transition: left 0.3s ease;
-      z-index: 50;
-      overflow-y: auto;
+      height: 100px;
+      margin-bottom: 24px;
     }
 
-    .sidebar.active {
+    /* 阴影层 - 专门承载阴影 */
+    .shadow-wrapper {
+      position: absolute;
+      top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0px 0px 87px 200px;
+      box-shadow: 10px 6px 8.2px rgba(0, 0, 0, 0.54);
+      pointer-events: none;
+      background: rgba(192, 192, 192, 0.1);
+      z-index: 0;
+    }
+
+    /* 顶栏 - 主体（外黑边框） */
+    .status-bar {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: rgba(192, 192, 192, 0.29);
+      border: 1px solid rgba(0, 0, 0, 0.7);
+      border-radius: 0px 0px 87px 200px;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-sizing: border-box;
+      backdrop-filter: blur(7.35px);
+      z-index: 1;
+    }
+
+    /* 顶栏 - 中灰边框（与外框重叠，产生模糊玻璃效果） */
+    .status-bar::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: calc(100% + 2px);
+      height: calc(100% + 2px);
+      border: 1px solid rgba(125, 125, 125, 0.4);
+      border-radius: 0px 0px 88px 201px;
+      pointer-events: none;
+    }
+
+    /* 顶栏 - 内白边框（与外框部分重叠，产生高光效果） */
+    .status-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 0px 0px 87px 200px;
+      pointer-events: none;
+    }
+
+    /* 添加记录按钮 */
+    .add-record-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: 'STZhongsong', '华文中宋', 'SimSun', 'SerenityOS Emoji', serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a5c1a;
+      text-align: center;
+      flex: 1;
+      transition: color 0.3s ease;
+    }
+
+    .add-record-btn:hover {
+      color: #228B22;
+      text-decoration: underline;
+    }
+
+    /* 按钮区域 */
+    .status-bar .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+
+
+    .glass-window {
+      position: relative;
+      width: 70vw;
+      max-width: 660px;
+      aspect-ratio: 660 / 635;
+      margin: 0 auto;
+    }
+
+    /* 卡片阴影层 */
+    .card-shadow-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      box-shadow: 10px 6px 8.2px rgba(0, 0, 0, 0.54);
+      pointer-events: none;
+      background: rgba(192, 192, 192, 0.1);
+      z-index: 0;
+    }
+
+    .glass-border-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 1px solid rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .glass-border-middle {
+      position: absolute;
+      width: calc(100% - 2px);
+      height: calc(100% - 2px);
+      border-top: 1px solid rgba(163, 163, 163, 0.7);
+      border-bottom: 1px solid rgba(163, 163, 163, 0.7);
+      border-left: none;
+      border-right: none;
+      border-radius: 20px;
+      top: 1px;
+      left: 1px;
+      z-index: 2;
+    }
+
+    .glass-border-inner {
+      position: absolute;
+      width: calc(100% - 2px);
+      height: calc(100% - 2px);
+      border-left: 1px solid rgba(226, 226, 226, 0.7);
+      border-right: 1px solid rgba(226, 226, 226, 0.7);
+      border-top: none;
+      border-bottom: none;
+      border-radius: 20px;
+      top: 1px;
+      left: 1px;
+      z-index: 3;
+    }
+
+    .card-container {
+      position: absolute;
+      width: calc(100% - 16px);
+      height: calc(100% - 16px);
+      top: 8px;
+      left: 8px;
+      overflow: hidden;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-header {
+      position: absolute;
+      width: 100%;
+      height: 60px;
+      top: 0;
+      left: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.67) 0%, rgba(63, 171, 103, 0.67) 17.31%, rgba(2, 18, 8, 0.67) 61.54%);
+      border-radius: 20px 20px 0px 0px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
+    }
+
+    .card-divider {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      top: 60px;
+      left: 0;
+      background: rgba(3, 25, 11, 0.65);
+    }
+
+    .card-content {
+      position: absolute;
+      width: 100%;
+      height: calc(100% - 62px);
+      top: 62px;
+      left: 0;
+      background: linear-gradient(180deg, rgba(2, 18, 8, 0.5963) 0%, rgba(4, 71, 29, 0.5226) 47.12%, rgba(2, 18, 8, 0.67) 100%);
+      border-radius: 0px 0px 20px 20px;
+      padding: 15px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      color: white;
+      font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
+    }
+
+    .card-content .section-label {
+      font-weight: bold;
+    }
+
+    .card-content *,
+    .card-header * {
+      color: white;
+      font-family: inherit;
+    }
+
+    .card-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .card-content::-webkit-scrollbar-track {
+      background: rgba(2, 18, 8, 0.3);
+      border-radius: 3px;
+    }
+
+    .card-content::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(63, 171, 103, 0.8) 0%, rgba(2, 18, 8, 0.9) 100%);
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-content::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(63, 171, 103, 1) 0%, rgba(2, 18, 8, 1) 100%);
+    }
+
+    .card-content {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(63, 171, 103, 0.8) rgba(2, 18, 8, 0.3);
+    }
+
+    .card-content input,
+    .card-content textarea {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .card-content .special-tag {
+      background: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+    }
+
+    @media (max-width: 768px) {
+      .glass-window {
+        width: 95vw;
+        max-width: 423px;
+        aspect-ratio: 423 / 500;
+      }
+
+      .card-header {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 15px;
+      }
+
+      .card-title {
+        font-size: 14px !important;
+      }
+
+      .card-btn {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+      }
+
+      .card-content {
+        padding: 12px 15px;
+      }
+
+      .section-icon {
+        font-size: 16px !important;
+      }
+
+      .section-label {
+        font-size: 12px !important;
+      }
+
+      .section-value {
+        font-size: 12px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .glass-window {
+        width: 98vw;
+        max-width: 350px;
+        aspect-ratio: 350 / 550;
+      }
+
+      .card-header {
+        padding: 0 10px;
+      }
+
+      .card-title {
+        font-size: 12px !important;
+      }
+
+      .card-btn {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+      }
+
+      .card-content {
+        padding: 10px 12px;
+      }
+
+      .section-value {
+        padding-left: 12px !important;
+      }
+    }
+
+    .settings-btn {
+      box-sizing: border-box;
+      width: 72px;
+      height: 29px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px 27px 12px 8px;
+      padding: 0 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: medium;
+      color: black;
+      transition: all 0.5s ease;
+    }
+
+    .settings-btn:hover {
+      width: 79.2px;
+      height: 31.9px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px 27px 12px 8px;
+    }
+
+    .settings-btn:hover span {
+      text-decoration: underline;
+    }
+
+    .header-btn {
+      box-sizing: border-box;
+      width: 72px;
+      height: 29px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px 27px 12px 8px;
+      padding: 0 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: medium;
+      color: black;
+      transition: all 0.5s ease;
+    }
+
+    .header-btn:hover {
+      width: 79.2px;
+      height: 31.9px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px 27px 12px 8px;
+    }
+
+    .header-btn:hover span {
+      text-decoration: underline;
+    }
+
+    .card-btn {
+      box-sizing: border-box;
+      width: 48px;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px 27px 12px 8px;
+      padding: 0 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: medium;
+      color: black;
+      transition: all 0.5s ease;
+    }
+
+    .card-btn:hover {
+      width: 52.8px;
+      height: 28.6px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px 27px 12px 8px;
+    }
+
+    .card-btn:hover span {
+      text-decoration: underline;
+    }
+
+    .add-special-btn {
+      box-sizing: border-box;
+      width: 40px;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px 27px 12px 8px;
+      padding: 0 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: medium;
+      color: black;
+      transition: all 0.5s ease;
+    }
+
+    .add-special-btn:hover {
+      width: 44px;
+      height: 28.6px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px 27px 12px 8px;
+    }
+
+    .add-special-btn:hover span {
+      text-decoration: underline;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .modal-overlay {
@@ -64,24 +511,227 @@
     }
 
     .modal-content {
-      background: white;
-      border-radius: 12px;
+      position: relative;
+      background: #000000;
+      border: 7px solid #DDDDDD;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      filter: drop-shadow(7px 12px 4px rgba(0, 0, 0, 0.25));
       padding: 24px;
       width: 90%;
-      max-width: 400px;
+      max-width: 520px;
+      max-height: 651px;
       transform: scale(0.9);
       transition: transform 0.3s ease;
+    }
+
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border: 3px solid #9A9A9A;
+      border-radius: inherit;
+      pointer-events: none;
+      filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
     }
 
     .modal-overlay.active .modal-content {
       transform: scale(1);
     }
 
-    @media (max-width: 640px) {
-      .sidebar {
-        max-width: 100%;
+    .modal-content h2,
+    .modal-content label,
+    .modal-content p,
+    .modal-content input::placeholder {
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    }
+
+    .modal-content input {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #00FF00;
+      border-radius: 0;
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      padding: 8px 0;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .modal-content input:focus {
+      border-bottom-color: #00FF00;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+
+    .modal-content #saveSettingsBtn,
+    .modal-content .save-settings-btn {
+      background: transparent;
+      border: none;
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+      text-decoration: underline;
+      transition: all 0.3s ease;
+      padding: 12px 24px;
+      width: 100%;
+    }
+
+    .modal-content #saveSettingsBtn:hover,
+    .modal-content .save-settings-btn:hover {
+      background: rgba(0, 255, 0, 0.1);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    }
+
+    .modal-content #closeSettingsBtn,
+    .modal-content .close-btn {
+      color: #00FF00;
+      background: transparent;
+      border: none;
+      text-decoration: underline;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      padding: 4px 8px;
+    }
+
+    .modal-content #closeSettingsBtn:hover,
+    .modal-content .close-btn:hover {
+      background: rgba(0, 255, 0, 0.1);
+    }
+
+    /* 通知栏容器 */
+    .notification-container {
+      position: fixed;
+      top: 120px;
+      right: 0;
+      width: 332px;
+      height: 272px;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: visible;
+    }
+
+    /* 通知-当前 */
+    .notification-current {
+      box-sizing: border-box;
+      position: absolute;
+      width: 284px;
+      height: 101px;
+      top: 0;
+      right: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 80px 0px 0px 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 40px 10px 30px;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a1a2e;
+      transition: all 0.3s ease;
+      pointer-events: auto;
+      cursor: pointer;
+      word-wrap: normal;
+      overflow: visible;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    /* 通知-之前 */
+    .notification-previous {
+      box-sizing: border-box;
+      position: absolute;
+      width: 243px;
+      height: 86px;
+      top: 105px;
+      right: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 80px 0px 0px 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 15px;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1a1a2e;
+      transition: all 0.3s ease;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* 通知-之前2 */
+    .notification-previous2 {
+      box-sizing: border-box;
+      position: absolute;
+      width: 243px;
+      height: 86px;
+      top: 195px;
+      right: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 80px 0px 0px 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 15px;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1a1a2e;
+      transition: all 0.3s ease;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* 通知进入动画 */
+    @keyframes notification-enter {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
       }
 
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* 通知退出动画 */
+    @keyframes notification-exit {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    .notification-enter {
+      animation: notification-enter 0.5s ease forwards;
+    }
+
+    .notification-exit {
+      animation: notification-exit 0.5s ease forwards;
+    }
+
+    @media (max-width: 640px) {
       body {
         font-size: 14px;
       }
@@ -162,11 +812,6 @@
         overflow-y: auto !important;
       }
 
-      .toast-message {
-        padding: 12px 20px !important;
-        font-size: 14px !important;
-      }
-
       .pagination-btn {
         padding: 6px 12px !important;
         font-size: 12px !important;
@@ -177,22 +822,6 @@
     @media (max-width: 480px) {
       .header-actions {
         gap: 4px !important;
-      }
-
-      .refresh-btn,
-      .save-btn {
-        padding: 8px !important;
-        font-size: 0 !important;
-      }
-
-      .refresh-btn::after {
-        content: '🔄';
-        font-size: 16px;
-      }
-
-      .save-btn::after {
-        content: '💾';
-        font-size: 16px;
       }
 
       .page-title {
@@ -220,39 +849,31 @@
 
 <body class="bg-gray-50 min-h-screen">
   <div id="app" class="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
-    <header class="mb-6 sm:mb-8 flex justify-between items-center">
-      <div class="flex items-center gap-2 sm:gap-4">
-        <button id="menuBtn" class="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-          <svg class="w-5 sm:w-6 h-5 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
+    <div id="font-test" style="display: none;">
+      <span class="emoji-replace">📅🌤️😴🍽️⚙️💡✅</span>
+    </div>
+    <header class="mb-6 sm:mb-8">
+      <div class="shadow-wrapper"></div>
+      <div class="status-bar">
+        <button id="addRecordBtn" class="add-record-btn">
+          <span>点击此处添加记录</span>
         </button>
-        <h1 class="page-title text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">📋哈喽，务必</h1>
-      </div>
-      <div class="header-actions flex gap-1 sm:gap-2">
-        <button id="settingsBtn"
-          class="header-btn p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" title="设置">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426-1.756-2.924-1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-            </path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-            </path>
-          </svg>
-        </button>
-        <button id="refreshBtn"
-          class="refresh-btn header-btn px-2 sm:px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
-          🔄 刷新
-        </button>
-        <button id="saveAllBtn"
-          class="save-btn header-btn px-2 sm:px-3 md:px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors">
-          💾 保存
-        </button>
+        <div class="header-actions flex gap-1 sm:gap-2">
+          <button id="settingsBtn" class="settings-btn header-btn" title="设置">
+            <span>设置</span>
+          </button>
+          <button id="refreshBtn" class="refresh-btn header-btn">
+            <span>刷新</span>
+          </button>
+          <button id="saveAllBtn" class="save-btn header-btn">
+            <span>保存</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <div id="toast"
-      class="toast-message fixed top-4 left-1/2 transform -translate-x-1/2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg text-white font-medium transition-all opacity-0 pointer-events-none z-50">
+    <!-- 通知栏容器 -->
+    <div id="notification-container" class="notification-container">
     </div>
 
     <main id="mainContent">
@@ -264,11 +885,7 @@
 
       <div id="emptyState" class="hidden text-center py-20">
         <p class="text-gray-500 text-lg">暂无日志记录</p>
-        <p class="text-gray-400 text-sm mt-2">请在设置中配置 GitHub 信息后加载日志</p>
-        <button id="emptySettingsBtn"
-          class="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors">
-          ⚙️ 配置
-        </button>
+        <p class="text-gray-500 text-sm mt-2">请在设置中配置 GitHub 信息后加载日志</p>
       </div>
 
       <div id="cardsContainer" class="grid gap-6"></div>
@@ -280,12 +897,8 @@
   <div id="settingsOverlay" class="modal-overlay">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-gray-800">⚙️ 设置</h2>
-        <button id="closeSettingsBtn" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+        <h2 class="text-xl font-bold">设置</h2>
+        <button id="closeSettingsBtn" class="close-btn">X</button>
       </div>
 
       <div class="space-y-4">
@@ -321,10 +934,7 @@
         </div>
 
         <div class="pt-4 border-t border-gray-200">
-          <button id="saveSettingsBtn"
-            class="w-full px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-lg transition-colors">
-            💾 保存设置
-          </button>
+          <button id="saveSettingsBtn" class="save-settings-btn">保存设置</button>
         </div>
       </div>
     </div>
@@ -354,150 +964,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <div id="sidebarOverlay" class="sidebar-overlay"></div>
-  <div id="sidebar" class="sidebar">
-    <div class="p-3 sm:p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
-      <h2 class="sidebar-title text-lg sm:text-xl font-bold text-gray-800">➕ 添加新卡片</h2>
-      <button id="closeSidebarBtn" class="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-        <svg class="w-5 sm:w-6 h-5 sm:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
-
-    <form id="addEntryForm" class="sidebar-form p-3 sm:p-4 space-y-3 sm:space-y-5">
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">📅 日期</label>
-        <input type="text" id="entryDate" required
-          class="form-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">1. Weather:</label>
-        <div class="space-y-1 sm:space-y-2">
-          <input type="text" id="weatherDesc" placeholder="天气描述"
-            class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          <div class="flex items-center gap-2">
-            <input type="text" id="weatherTempLow" placeholder="最低温"
-              class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            <span class="text-gray-500">~</span>
-            <input type="text" id="weatherTempHigh" placeholder="最高温"
-              class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            <span class="text-gray-500">℃</span>
-          </div>
-          <button type="button" id="queryWeatherBtn"
-            class="w-full px-3 sm:px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2">
-            <svg class="w-4 sm:w-5 h-4 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            📡 查询天气
-          </button>
-          <div id="weatherLoading" class="hidden text-center py-2">
-            <div
-              class="inline-block animate-spin rounded-full h-4 sm:h-5 w-4 sm:w-5 border-2 border-cyan-500 border-t-transparent">
-            </div>
-            <span class="ml-2 text-xs sm:text-sm text-gray-500">查询中...</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">2. Sleep:</label>
-        <div class="space-y-1 sm:space-y-2">
-          <div class="flex items-center gap-2">
-            <input type="text" id="sleepHour" placeholder="HH" maxlength="2"
-              class="w-14 sm:w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center">
-            <span class="text-gray-500 text-xs sm:text-sm">:</span>
-            <input type="text" id="sleepMin" placeholder="MM" maxlength="2"
-              class="w-14 sm:w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center">
-            <span class="text-gray-500 text-xs sm:text-sm">睡着，</span>
-            <input type="text" id="wakeHour" placeholder="HH" maxlength="2"
-              class="w-14 sm:w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center">
-            <span class="text-gray-500 text-xs sm:text-sm">:</span>
-            <input type="text" id="wakeMin" placeholder="MM" maxlength="2"
-              class="w-14 sm:w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center">
-          </div>
-          <div class="flex gap-2">
-            <button type="button" id="wakeTypeAwake"
-              class="px-3 py-1 bg-blue-500 text-white rounded-lg text-xs sm:text-sm transition-colors">⚡ 苏醒</button>
-            <button type="button" id="wakeTypeAlarm"
-              class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-xs sm:text-sm transition-colors">⏰
-              闹钟</button>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-600 text-xs sm:text-sm">备注:</span>
-            <input type="text" id="sleepNote" placeholder="备注"
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">3. Diet:</label>
-        <div class="space-y-1 sm:space-y-2">
-          <div class="flex items-center gap-2">
-            <span class="text-gray-600 text-xs sm:text-sm">早饭：</span>
-            <input type="text" id="dietBreakfast" placeholder="可选"
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-600 text-xs sm:text-sm">午饭：</span>
-            <input type="text" id="dietLunch" placeholder=""
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-600 text-xs sm:text-sm">晚饭：</span>
-            <input type="text" id="dietDinner" placeholder=""
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">4. Exercise:</label>
-        <input type="text" id="exercise" placeholder=""
-          class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">5. Note:</label>
-        <textarea id="note" rows="2 sm:rows-3" placeholder=""
-          class="form-textarea w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-      </div>
-
-      <div>
-        <label class="form-section-label block text-sm font-medium text-gray-700 mb-1 sm:mb-2">💡 特殊标识:</label>
-        <input type="text" id="specialNoteText" placeholder="输入标注内容"
-          class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-2">
-        <div class="flex flex-col gap-1.5 sm:gap-2">
-          <button type="button" id="addSpecialPlus"
-            class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium text-sm transition-colors text-left">
-            <span class="mr-2">鼓励</span> [+] 添加
-          </button>
-          <button type="button" id="addSpecialQuestion"
-            class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition-colors text-left">
-            <span class="mr-2">观察</span> [?] 添加
-          </button>
-          <button type="button" id="addSpecialExclamation"
-            class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium text-sm transition-colors text-left">
-            <span class="mr-2">问题</span> [!] 添加
-          </button>
-        </div>
-        <div id="specialNotesList" class="mt-2 sm:mt-3 space-y-2"></div>
-      </div>
-
-      <div class="pt-3 sm:pt-4 border-t border-gray-200">
-        <button type="submit"
-          class="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-base sm:text-lg transition-colors">
-          ✅ 提交
-        </button>
-      </div>
-
-      <div class="safe-bottom-space h-20 sm:h-24 md:h-16"></div>
-    </form>
   </div>
 
   <script>
@@ -573,22 +1039,157 @@
       };
     }
 
-    function Toast() {
-      let timeout = null;
-      return {
-        show(message, type = 'success') {
-          const el = document.getElementById('toast');
-          el.textContent = message;
-          el.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all z-50 ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`;
-          el.style.opacity = '1';
-          el.style.pointerEvents = 'auto';
-          if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(() => {
-            el.style.opacity = '0';
-            el.style.pointerEvents = 'none';
-          }, 3000);
+    const Toast = (() => {
+      const notifications = [];
+      let container = null;
+
+      const getContainer = () => {
+        if (!container) {
+          container = document.getElementById('notification-container');
+        }
+        return container;
+      };
+
+      const removeNotification = (index) => {
+        const notification = notifications[index];
+        if (notification) {
+          clearTimeout(notification.timeout);
+          notification.element.classList.remove('notification-enter');
+          notification.element.classList.add('notification-exit');
+          setTimeout(() => {
+            notification.element.remove();
+          }, 500);
+          notifications.splice(index, 1);
+          updateNotificationPositions();
         }
       };
+
+      const updateNotificationPositions = () => {
+        notifications.forEach((notif, index) => {
+          notif.element.classList.remove('notification-current', 'notification-previous', 'notification-previous2');
+          if (index === 0) {
+            notif.element.classList.add('notification-current');
+          } else if (index === 1) {
+            notif.element.classList.add('notification-previous');
+          } else if (index === 2) {
+            notif.element.classList.add('notification-previous2');
+          }
+        });
+      };
+
+      return {
+        show(message, type = 'success') {
+          const notificationContainer = getContainer();
+          if (!notificationContainer) {
+            console.error('Notification container not found');
+            return;
+          }
+
+          const notificationElement = document.createElement('div');
+          notificationElement.textContent = message;
+          notificationElement.classList.add('notification-current', 'notification-enter');
+
+          notificationElement.addEventListener('click', () => {
+            const index = notifications.findIndex(n => n.element === notificationElement);
+            if (index !== -1) {
+              removeNotification(index);
+            }
+          });
+
+          notificationContainer.appendChild(notificationElement);
+
+          const timeout = setTimeout(() => {
+            const index = notifications.findIndex(n => n.element === notificationElement);
+            if (index !== -1) {
+              removeNotification(index);
+            }
+          }, 4700);
+
+          notifications.unshift({ element: notificationElement, timeout });
+
+          if (notifications.length > 3) {
+            removeNotification(3);
+          }
+
+          updateNotificationPositions();
+        }
+      };
+    })();
+
+    async function createNewEntry() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+      const date = `${year}.${month}.${day}`;
+
+      if (state.entries.some(entry => entry.date === date)) {
+        Toast.show('今天的记录已存在，请编辑现有记录');
+        return;
+      }
+
+      const postalCode = state.postalCode || Storage().get(STORAGE_KEYS.postalCode) || '';
+
+      const newEntry = {
+        date,
+        weather: { description: '', tempLow: null, tempHigh: null, note: '' },
+        sleep: { sleepTime: '', wakeTime: '', wakeType: '', note: '' },
+        diet: { breakfast: '', lunch: '', dinner: '' },
+        exercise: '',
+        note: '',
+        specialNotes: []
+      };
+
+      state.entries.unshift(newEntry);
+      state.currentPage = 1;
+
+      Renderer().renderCards(state.entries);
+
+      setTimeout(() => {
+        const cards = document.querySelectorAll('.glass-window');
+        if (cards.length > 0) {
+          const newCard = cards[0];
+
+          const editBtn = newCard.querySelector('.edit-btn');
+          if (editBtn) {
+            editBtn.click();
+
+            if (postalCode) {
+              queryWeatherAndFill(newCard, postalCode, date);
+            }
+          }
+        }
+      }, 200);
+    }
+
+    async function queryWeatherAndFill(card, location, date) {
+      try {
+        const weatherResult = await WeatherService().query(location);
+
+        if (weatherResult) {
+          const weatherInput = card.querySelector('.weather-input');
+          if (weatherInput) {
+            const weatherText = `${weatherResult.description}，${weatherResult.tempLow}-${weatherResult.tempHigh}℃`;
+            weatherInput.value = weatherText;
+
+            const entryIndex = state.entries.findIndex(e => e.date === date);
+            if (entryIndex !== -1) {
+              state.entries[entryIndex].weather = {
+                description: weatherResult.description,
+                tempLow: weatherResult.tempLow,
+                tempHigh: weatherResult.tempHigh,
+                note: ''
+              };
+            }
+
+            Toast.show('天气填充成功 ' + location + ' 的天气');
+          }
+        } else {
+          Toast.show('天气查询失败，请检查城市名称');
+        }
+      } catch (err) {
+        Toast.show('天气查询失败: ' + err.message, 'error');
+      }
     }
 
     function Api() {
@@ -641,12 +1242,9 @@
       return {
         async query(locationStr) {
           if (!locationStr) {
-            Toast().show('请先在设置中填写所在城市', 'error');
+            Toast.show('请先在设置中填写所在城市', 'error');
             return null;
           }
-
-          document.getElementById('weatherLoading').classList.remove('hidden');
-          document.getElementById('queryWeatherBtn').disabled = true;
 
           try {
             console.log('正在查询位置:', locationStr);
@@ -685,7 +1283,7 @@
             }
 
             if (!foundLocation) {
-              Toast().show('未找到该地区，请尝试更简单的城市名', 'error');
+              Toast.show('未找到该地区，请尝试更简单的城市名', 'error');
               return null;
             }
 
@@ -723,11 +1321,7 @@
             };
           } catch (err) {
             console.error('Weather query error:', err);
-            Toast().show('天气查询失败: ' + err.message, 'error');
             return null;
-          } finally {
-            document.getElementById('weatherLoading').classList.add('hidden');
-            document.getElementById('queryWeatherBtn').disabled = false;
           }
         },
 
@@ -1056,7 +1650,7 @@
 
         createCard(entry, index) {
           const card = document.createElement('div');
-          card.className = 'bg-white rounded-xl shadow-md overflow-hidden';
+          card.className = 'glass-window';
           card.id = `card-${index}`;
 
           const weatherDisplay = this.formatWeather(entry.weather);
@@ -1064,117 +1658,124 @@
           const dietDisplay = this.formatDiet(entry.diet);
 
           card.innerHTML = `
-            <div class="card-header bg-gradient-to-r from-blue-500 to-blue-600 px-4 sm:px-5 py-3 sm:py-4 flex justify-between items-center">
-              <div class="flex items-center gap-2">
-                <span class="card-title text-white font-bold text-base sm:text-lg">📅 ${entry.date}</span>
-                <button class="delete-btn hidden px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded-lg transition-colors">🗑️ 删除</button>
-              </div>
-              <div class="flex gap-1 sm:gap-2">
-                <button class="card-btn edit-btn px-2 sm:px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs sm:text-sm rounded-lg transition-colors">✏️</button>
-                <button class="card-btn save-btn hidden px-2 sm:px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm rounded-lg transition-colors">💾</button>
-                <button class="card-btn cancel-btn hidden px-2 sm:px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white text-xs sm:text-sm rounded-lg transition-colors">❌</button>
-              </div>
-            </div>
-            <div class="card-content p-3 sm:p-5 space-y-3 sm:space-y-4">
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🌤️</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Weather</span>
+            <div class="card-shadow-wrapper"></div>
+            <div class="glass-border-outer"></div>
+            <div class="glass-border-middle"></div>
+            <div class="glass-border-inner"></div>
+            <div class="card-container">
+              <div class="card-header">
+                <div class="flex items-center gap-2">
+                  <span class="card-title font-bold text-lg text-white">📅 ${entry.date}</span>
+                  <button class="delete-btn card-btn hidden"><span>删除</span></button>
                 </div>
-                <div class="section-value text-sm sm:text-lg text-gray-800 pl-6 sm:pl-8">${weatherDisplay}</div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🌤️</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Weather</span>
+                <div class="flex gap-2">
+                  <button class="card-btn edit-btn"><span>编辑</span></button>
+                  <button class="card-btn save-btn hidden"><span>保存</span></button>
+                  <button class="card-btn cancel-btn hidden"><span>取消</span></button>
                 </div>
-                <input type="text" class="form-input weather-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-lg focus:ring-2 focus:ring-blue-500 outline-none" value="${this.reconstructWeather(entry.weather)}">
               </div>
+              <div class="card-divider"></div>
+              <div class="card-content">
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🌤️</span>
+                    <span class="section-label text-sm font-medium">Weather</span>
+                  </div>
+                  <div class="section-value text-sm pl-8">${weatherDisplay}</div>
+                </div>
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🌤️</span>
+                    <span class="section-label text-sm font-medium">Weather</span>
+                  </div>
+                  <input type="text" class="form-input weather-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${this.reconstructWeather(entry.weather)}">
+                </div>
 
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">😴</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Sleep</span>
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">😴</span>
+                    <span class="section-label text-sm font-medium">Sleep</span>
+                  </div>
+                  <div class="section-value text-sm pl-8">${sleepDisplay}</div>
                 </div>
-                <div class="section-value text-sm sm:text-lg text-gray-800 pl-6 sm:pl-8">${sleepDisplay}</div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">😴</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Sleep</span>
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">😴</span>
+                    <span class="section-label text-sm font-medium">Sleep</span>
+                  </div>
+                  <input type="text" class="form-input sleep-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${this.reconstructSleep(entry.sleep)}">
                 </div>
-                <input type="text" class="form-input sleep-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-lg focus:ring-2 focus:ring-blue-500 outline-none" value="${this.reconstructSleep(entry.sleep)}">
-              </div>
 
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🍽️</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Diet</span>
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🍽️</span>
+                    <span class="section-label text-sm font-medium">Diet</span>
+                  </div>
+                  <div class="section-value text-sm pl-8 whitespace-pre-wrap">${dietDisplay}</div>
                 </div>
-                <div class="section-value text-sm sm:text-lg text-gray-800 pl-6 sm:pl-8 whitespace-pre-wrap">${dietDisplay}</div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🍽️</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Diet</span>
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🍽️</span>
+                    <span class="section-label text-sm font-medium">Diet</span>
+                  </div>
+                  <textarea class="form-textarea diet-input w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" rows="2">${this.reconstructDiet(entry.diet)}</textarea>
                 </div>
-                <textarea class="form-textarea diet-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none" rows="2 sm:rows-3">${this.reconstructDiet(entry.diet)}</textarea>
-              </div>
 
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🏃</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Exercise</span>
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🏃</span>
+                    <span class="section-label text-sm font-medium">Exercise</span>
+                  </div>
+                  <div class="section-value text-sm pl-8">${entry.exercise || '-'}</div>
                 </div>
-                <div class="section-value text-sm sm:text-lg text-gray-800 pl-6 sm:pl-8">${entry.exercise || '-'}</div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">🏃</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Exercise</span>
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">🏃</span>
+                    <span class="section-label text-sm font-medium">Exercise</span>
+                  </div>
+                  <input type="text" class="form-input exercise-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.exercise || ''}">
                 </div>
-                <input type="text" class="form-input exercise-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-lg focus:ring-2 focus:ring-blue-500 outline-none" value="${entry.exercise || ''}">
-              </div>
 
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">📝</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Note</span>
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">📝</span>
+                    <span class="section-label text-sm font-medium">Note</span>
+                  </div>
+                  <div class="section-value text-sm pl-8">${entry.note || '-'}</div>
                 </div>
-                <div class="section-value text-sm sm:text-lg text-gray-800 pl-6 sm:pl-8">${entry.note || '-'}</div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">📝</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">Note</span>
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">📝</span>
+                    <span class="section-label text-sm font-medium">Note</span>
+                  </div>
+                  <textarea class="form-textarea note-input w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" rows="2">${entry.note || ''}</textarea>
                 </div>
-                <textarea class="form-textarea note-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" rows="2 sm:rows-3">${entry.note || ''}</textarea>
-              </div>
 
-              <div class="view-mode">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">💡</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">特殊标注</span>
+                <div class="view-mode">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">💡</span>
+                    <span class="section-label text-sm font-medium">特殊标注</span>
+                  </div>
+                  <div class="pl-8 space-y-2">
+                    ${entry.specialNotes.length > 0 ? entry.specialNotes.map(n => `
+                      <span class="special-tag inline-block px-2 py-1 rounded text-sm mr-1 mb-1">
+                        [${n.type}] ${n.text}
+                      </span>
+                    `).join('') : '-'}
+                  </div>
                 </div>
-                <div class="pl-6 sm:pl-8 space-y-2">
-                  ${entry.specialNotes.length > 0 ? entry.specialNotes.map(n => `
-                    <span class="special-tag inline-block px-2 py-1 rounded text-xs sm:text-sm mr-1 mb-1 ${n.type === '+' ? 'bg-green-100 text-green-800' : n.type === '?' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
-                      [${n.type}] ${n.text}
-                    </span>
-                  `).join('') : '-'}
+                <div class="edit-mode hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="section-icon text-xl">💡</span>
+                    <span class="section-label text-sm font-medium">特殊标注</span>
+                  </div>
+                  <div class="flex gap-2 mb-2">
+                    <button type="button" class="add-special-btn" data-type="?"><span>[?]</span></button>
+                    <button type="button" class="add-special-btn" data-type="!"><span>[!]</span></button>
+                    <button type="button" class="add-special-btn" data-type="+"><span>[+]</span></button>
+                  </div>
+                  <textarea class="form-textarea special-notes-input w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" rows="3" placeholder="每行一个标注，格式：[!]/[?]/[+] 内容">${entry.specialNotes.map(n => `[${n.type}] ${n.text}`).join('\n')}</textarea>
                 </div>
-              </div>
-              <div class="edit-mode hidden">
-                <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                  <span class="section-icon text-lg sm:text-2xl">💡</span>
-                  <span class="section-label text-xs sm:text-sm font-medium text-gray-500">特殊标注</span>
-                </div>
-                <div class="flex gap-1 sm:gap-2 mb-2">
-                  <button type="button" class="add-special-btn px-2 sm:px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm rounded-lg transition-colors" data-type="?">[?]</button>
-                  <button type="button" class="add-special-btn px-2 sm:px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm rounded-lg transition-colors" data-type="!">[!]</button>
-                  <button type="button" class="add-special-btn px-2 sm:px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm rounded-lg transition-colors" data-type="+">[+]</button>
-                </div>
-                <textarea class="form-textarea special-notes-input w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" rows="3 sm:rows-4" placeholder="每行一个标注，格式：[!]/[?]/[+] 内容">${entry.specialNotes.map(n => `[${n.type}] ${n.text}`).join('\n')}</textarea>
               </div>
             </div>
           `;
@@ -1231,10 +1832,10 @@
               const content = stringifier.stringifyAll(state.entries);
               const result = await Api().putFile(content, `更新健康日志 - ${updatedEntry.date}`);
               Storage().saveSha(result.content.sha);
-              Toast().show('已保存到 GitHub');
+              Toast.show('已保存到 GitHub');
               this.renderCards(state.entries);
             } catch (err) {
-              Toast().show(`保存失败: ${err.message}`, 'error');
+              Toast.show(`保存失败: ${err.message}`, 'error');
               this.renderCards(state.entries);
             }
           });
@@ -1363,199 +1964,6 @@
       };
     }
 
-    function SidebarManager() {
-      const renderer = Renderer();
-      const stringifier = Stringifier();
-      const weatherService = WeatherService();
-
-      return {
-        open() {
-          document.getElementById('sidebarOverlay').classList.add('active');
-          document.getElementById('sidebar').classList.add('active');
-          this.initForm();
-        },
-
-        close() {
-          document.getElementById('sidebarOverlay').classList.remove('active');
-          document.getElementById('sidebar').classList.remove('active');
-        },
-
-        initForm() {
-          const now = new Date();
-          const year = now.getFullYear();
-          const month = now.getMonth() + 1;
-          const day = now.getDate();
-          document.getElementById('entryDate').value = `${year}.${month}.${day}`;
-
-          document.getElementById('weatherDesc').value = '';
-          document.getElementById('weatherTempLow').value = '';
-          document.getElementById('weatherTempHigh').value = '';
-          document.getElementById('sleepHour').value = '';
-          document.getElementById('sleepMin').value = '';
-          document.getElementById('wakeHour').value = '';
-          document.getElementById('wakeMin').value = '';
-          document.getElementById('sleepNote').value = '';
-          document.getElementById('dietBreakfast').value = '';
-          document.getElementById('dietLunch').value = '';
-          document.getElementById('dietDinner').value = '';
-          document.getElementById('exercise').value = '';
-          document.getElementById('note').value = '';
-          document.getElementById('specialNoteText').value = '';
-
-          state.wakeType = '苏醒';
-          state.formSpecialNotes = [];
-          this.updateWakeTypeButtons();
-          this.renderSpecialNotesList();
-        },
-
-        updateWakeTypeButtons() {
-          const awakeBtn = document.getElementById('wakeTypeAwake');
-          const alarmBtn = document.getElementById('wakeTypeAlarm');
-
-          if (state.wakeType === '苏醒') {
-            awakeBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-            awakeBtn.classList.add('bg-blue-500', 'text-white');
-            alarmBtn.classList.remove('bg-blue-500', 'text-white');
-            alarmBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-          } else {
-            alarmBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-            alarmBtn.classList.add('bg-blue-500', 'text-white');
-            awakeBtn.classList.remove('bg-blue-500', 'text-white');
-            awakeBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-          }
-        },
-
-        renderSpecialNotesList() {
-          const container = document.getElementById('specialNotesList');
-          container.innerHTML = state.formSpecialNotes.map((note, index) => {
-            const colorClass = note.type === '+' ? 'bg-green-100 text-green-800' : note.type === '?' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
-            return `
-              <div class="flex items-center justify-between px-3 py-2 rounded ${colorClass}">
-                <span>[${note.type}] ${note.text}</span>
-                <button type="button" class="remove-special-note hover:opacity-70" data-index="${index}">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            `;
-          }).join('');
-
-          container.querySelectorAll('.remove-special-note').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-              const index = parseInt(e.currentTarget.dataset.index);
-              state.formSpecialNotes.splice(index, 1);
-              this.renderSpecialNotesList();
-            });
-          });
-        },
-
-        addSpecialNote(type) {
-          const textInput = document.getElementById('specialNoteText');
-          const text = textInput.value.trim();
-          if (!text) {
-            Toast().show('请先输入标注内容', 'error');
-            return;
-          }
-          state.formSpecialNotes.push({ type, text });
-          textInput.value = '';
-          this.renderSpecialNotesList();
-        },
-
-        async queryWeather() {
-          const postalCode = state.postalCode || Storage().get(STORAGE_KEYS.postalCode) || '';
-          const result = await weatherService.query(postalCode);
-          if (result) {
-            document.getElementById('weatherDesc').value = result.description;
-            document.getElementById('weatherTempLow').value = result.tempLow;
-            document.getElementById('weatherTempHigh').value = result.tempHigh;
-            Toast().show('天气已填充');
-          }
-        },
-
-        validateDate(date) {
-          return state.entries.some(entry => entry.date === date);
-        },
-
-        async handleSubmit() {
-          const date = document.getElementById('entryDate').value.trim();
-
-          if (!date) {
-            Toast().show('请输入日期', 'error');
-            return;
-          }
-
-          const datePattern = /^(\d{4})\.(\d{1,2})\.(\d{1,2})$/;
-          if (!datePattern.test(date)) {
-            Toast().show('日期格式错误，请使用 yyyy.m.d 格式', 'error');
-            return;
-          }
-
-          if (this.validateDate(date)) {
-            Toast().show('该日期的记录已存在，请修改日期或编辑现有记录', 'error');
-            return;
-          }
-
-          const weatherDesc = document.getElementById('weatherDesc').value.trim();
-          const weatherTempLow = document.getElementById('weatherTempLow').value.trim();
-          const weatherTempHigh = document.getElementById('weatherTempHigh').value.trim();
-
-          const sleepHour = document.getElementById('sleepHour').value.trim();
-          const sleepMin = document.getElementById('sleepMin').value.trim();
-          const wakeHour = document.getElementById('wakeHour').value.trim();
-          const wakeMin = document.getElementById('wakeMin').value.trim();
-          const sleepNote = document.getElementById('sleepNote').value.trim();
-
-          const dietBreakfast = document.getElementById('dietBreakfast').value.trim();
-          const dietLunch = document.getElementById('dietLunch').value.trim();
-          const dietDinner = document.getElementById('dietDinner').value.trim();
-
-          const exercise = document.getElementById('exercise').value.trim();
-          const note = document.getElementById('note').value.trim();
-
-          const newEntry = {
-            date,
-            weather: {
-              description: weatherDesc,
-              tempLow: weatherTempLow ? parseInt(weatherTempLow) : null,
-              tempHigh: weatherTempHigh ? parseInt(weatherTempHigh) : null,
-              note: ''
-            },
-            sleep: {
-              sleepTime: (sleepHour && sleepMin) ? `${sleepHour}:${sleepMin}` : '',
-              wakeTime: (wakeHour && wakeMin) ? `${wakeHour}:${wakeMin}` : '',
-              wakeType: (sleepHour && sleepMin) || (wakeHour && wakeMin) ? state.wakeType : '',
-              note: sleepNote
-            },
-            diet: {
-              breakfast: dietBreakfast,
-              lunch: dietLunch,
-              dinner: dietDinner
-            },
-            exercise,
-            note,
-            specialNotes: [...state.formSpecialNotes]
-          };
-
-          state.entries.push(newEntry);
-          state.currentPage = 1;
-          this.close();
-
-          try {
-            const content = stringifier.stringifyAll(state.entries);
-            const result = await Api().putFile(content, `添加健康日志 - ${date}`);
-            Storage().saveSha(result.content.sha);
-            renderer.renderCards(state.entries);
-            Toast().show('已保存到 GitHub');
-          } catch (err) {
-            Toast().show(`保存失败: ${err.message}`, 'error');
-            state.entries.pop();
-            renderer.renderCards(state.entries);
-          }
-        }
-      };
-    }
-
     async function loadData() {
       if (!Storage().hasConfig()) {
         document.getElementById('emptyState').classList.remove('hidden');
@@ -1575,7 +1983,7 @@
 
         Renderer().renderCards(state.entries);
       } catch (err) {
-        Toast().show(`加载失败: ${err.message}`, 'error');
+        Toast.show(`加载失败: ${err.message}`, 'error');
         document.getElementById('emptyState').classList.remove('hidden');
       } finally {
         document.getElementById('loadingState').classList.add('hidden');
@@ -1584,24 +1992,28 @@
 
     async function saveAll() {
       if (state.entries.length === 0) {
-        Toast().show('没有可保存的数据', 'error');
+        Toast.show('没有可保存的数据', 'error');
         return;
       }
+
+      Toast.show('尝试保存中');
 
       try {
         const content = Stringifier().stringifyAll(state.entries);
         const result = await Api().putFile(content, '保存健康日志 - 全部更新');
         Storage().saveSha(result.content.sha);
-        Toast().show('已保存到 GitHub');
+        Toast.show('已保存到 GitHub');
       } catch (err) {
-        Toast().show(`保存失败: ${err.message}`, 'error');
+        Toast.show(`保存失败: ${err.message}`, 'error');
       }
     }
 
-    const sidebarManager = SidebarManager();
-
     document.addEventListener('DOMContentLoaded', () => {
       Storage().loadConfig();
+
+      document.getElementById('addRecordBtn').addEventListener('click', () => {
+        createNewEntry();
+      });
 
       document.getElementById('settingsBtn').addEventListener('click', () => {
         document.getElementById('tokenInput').value = state.config.token;
@@ -1632,28 +2044,19 @@
         Storage().saveConfig();
         Storage().saveLocation(postalCode);
         document.getElementById('settingsOverlay').classList.remove('active');
-        Toast().show('设置已保存');
+        Toast.show('设置已保存');
         loadData();
       });
 
-      document.getElementById('emptySettingsBtn').addEventListener('click', () => {
-        document.getElementById('settingsBtn').click();
-      });
+
 
       document.getElementById('refreshBtn').addEventListener('click', () => {
+        Toast.show('已刷新');
         loadData();
       });
 
       document.getElementById('saveAllBtn').addEventListener('click', () => {
         saveAll();
-      });
-
-      document.getElementById('menuBtn').addEventListener('click', () => {
-        sidebarManager.open();
-      });
-
-      document.getElementById('closeSidebarBtn').addEventListener('click', () => {
-        sidebarManager.close();
       });
 
       // 删除确认弹窗事件
@@ -1678,55 +2081,26 @@
         if (originalIndex !== -1) {
           state.entries.splice(originalIndex, 1);
           document.getElementById('deleteConfirmOverlay').classList.remove('active');
+
+          // 保存日期字符串，用最简单的方式
+          const dateStr = String(entryToDelete.date);
           window.currentEntryToDelete = null;
 
           try {
             const content = Stringifier().stringifyAll(state.entries);
-            const result = await Api().putFile(content, `删除健康日志 - ${entryToDelete.date}`);
+            const result = await Api().putFile(content, '删除健康日志');
             Storage().saveSha(result.content.sha);
-            Toast().show(`已删除 ${entryToDelete.date} 的记录`);
+
+            // 最简单直接的方式：字符串拼接
+            const fullMsg = '已删除 ' + dateStr + ' 的记录';
+            Toast.show(fullMsg);
             Renderer().renderCards(state.entries);
           } catch (err) {
-            Toast().show(`删除失败: ${err.message}`, 'error');
+            Toast.show('删除失败: ' + err.message, 'error');
             state.entries.splice(originalIndex, 0, entryToDelete);
             Renderer().renderCards(state.entries);
           }
         }
-      });
-
-      document.getElementById('sidebarOverlay').addEventListener('click', () => {
-        sidebarManager.close();
-      });
-
-      document.getElementById('wakeTypeAwake').addEventListener('click', () => {
-        state.wakeType = '苏醒';
-        sidebarManager.updateWakeTypeButtons();
-      });
-
-      document.getElementById('wakeTypeAlarm').addEventListener('click', () => {
-        state.wakeType = '闹钟';
-        sidebarManager.updateWakeTypeButtons();
-      });
-
-      document.getElementById('addSpecialPlus').addEventListener('click', () => {
-        sidebarManager.addSpecialNote('+');
-      });
-
-      document.getElementById('addSpecialQuestion').addEventListener('click', () => {
-        sidebarManager.addSpecialNote('?');
-      });
-
-      document.getElementById('addSpecialExclamation').addEventListener('click', () => {
-        sidebarManager.addSpecialNote('!');
-      });
-
-      document.getElementById('addEntryForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        sidebarManager.handleSubmit();
-      });
-
-      document.getElementById('queryWeatherBtn').addEventListener('click', () => {
-        sidebarManager.queryWeather();
       });
 
       loadData();
