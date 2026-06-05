@@ -22,10 +22,12 @@
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
+      background-size: 100% 100%;
       min-height: 100vh;
       margin: 0;
       padding: 0;
       font-family: 'SerenityOS Emoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
+      will-change: background-position;
     }
 
     /* 设置面板输入框placeholder灰色 */
@@ -124,7 +126,7 @@
     .add-record-btn-mobile {
       display: none;
       position: absolute;
-      left: 16px;
+      left: 7px;
       top: 50%;
       transform: translateY(-50%);
       width: 77.5px;
@@ -137,6 +139,7 @@
       background-position: center;
       cursor: pointer;
       transition: transform 0.2s ease;
+      z-index: 10;
     }
 
     .add-record-btn-mobile:hover {
@@ -680,6 +683,25 @@
       animation: notification-exit 0.5s ease forwards;
     }
 
+    /* 卡片淡入上滑动画 */
+    @keyframes card-fade-in-up {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .card-animation {
+      opacity: 0;
+      /* 确保开始时是隐藏的 */
+      animation: card-fade-in-up 0.5s ease forwards;
+    }
+
     @media (max-width: 640px) {
       body {
         font-size: 14px;
@@ -875,9 +897,14 @@
         justify-content: center;
       }
 
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      /* 使用 CSS zoom 属性，它比 transform scale 更好，不会影响布局 */
       #app {
-        transform: scale(0.85);
-        transform-origin: center top;
+        zoom: 0.85;
         margin-left: auto;
         margin-right: auto;
         padding-left: 8px;
@@ -985,7 +1012,10 @@
 
     <main id="mainContent">
       <div id="loadingState" class="hidden text-center py-20">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent">
+        <div class="inline-block">
+          <div id="progressBar" class="progress-bar"
+            style="width: 190px; height: 19px; box-sizing: border-box; position: relative; background: linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, rgba(83,140,98,0.85) 0%, rgba(0,183,49,0.85) 0%, rgba(123,214,147,0.85) 0%, rgba(0,183,49,0.85) 0%, rgba(83,140,98,0.85) 0%, rgba(200,200,200,0.6) 0%, rgba(200,200,200,0.6) 100%); border: 1px solid rgba(0,0,0,0.13); border-radius: 7px;">
+          </div>
         </div>
         <p class="mt-4 text-gray-600">加载中...</p>
       </div>
@@ -1116,6 +1146,11 @@
       const expectedSequence = 'cmd';
       let consoleEl = null;
       let inputEl = null;
+
+      // 移动端触发相关
+      let mobileClickTimes = [];
+      const mobileClickThreshold = 4; // 需要4次点击
+      const mobileClickWindow = 4000; // 4秒时间窗口
 
       const getElements = () => {
         if (!consoleEl) {
@@ -1268,11 +1303,37 @@
         }
       };
 
+      // 移动端点击处理
+      const handleMobileClick = (e) => {
+        const now = Date.now();
+        // 过滤掉超过时间窗口的点击
+        mobileClickTimes = mobileClickTimes.filter(t => now - t < mobileClickWindow);
+        // 添加当前点击时间
+        mobileClickTimes.push(now);
+
+        // 检查是否达到阈值
+        if (mobileClickTimes.length >= mobileClickThreshold) {
+          mobileClickTimes = [];
+          toggle();
+          // 设置标志，阻止默认的添加记录行为
+          window._consoleJustToggled = true;
+          e.preventDefault();
+          e.stopPropagation();
+        } else {
+          window._consoleJustToggled = false;
+        }
+      };
+
       const init = () => {
         document.addEventListener('keydown', handleKeyDown);
         const { inputEl } = getElements();
         if (inputEl) {
           inputEl.addEventListener('keydown', handleInputKeyDown);
+        }
+        // 移动端按钮点击监听（使用捕获阶段，确保先执行）
+        const mobileBtn = document.getElementById('addRecordBtnMobile');
+        if (mobileBtn) {
+          mobileBtn.addEventListener('click', handleMobileClick, true);
         }
       };
 
@@ -1821,6 +1882,9 @@
           pageEntries.forEach((entry, index) => {
             const globalIndex = startIndex + index;
             const card = this.createCard(entry, globalIndex);
+            // 添加淡入上滑动画，按顺序延迟
+            card.classList.add('card-animation');
+            card.style.animationDelay = `${index * 0.1}s`;
             container.appendChild(card);
           });
 
@@ -2242,6 +2306,86 @@
       };
     }
 
+    function updateProgressBar(progress) {
+      const progressBar = document.getElementById('progressBar');
+      if (!progressBar) return;
+
+      // 确保进度在合理范围内
+      progress = Math.max(0, Math.min(100, progress));
+
+      let gradient;
+      if (progress <= 0) {
+        // 0% 状态：全灰色
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 0%, 
+          rgba(123,214,147,0.85) 0%, 
+          rgba(0,183,49,0.85) 0%, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(200,200,200,0.6) 0%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 25) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 50) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 75) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) 50%, 
+          rgba(0,183,49,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) 50%, 
+          rgba(0,183,49,0.85) 75%, 
+          rgba(83,140,98,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      }
+      progressBar.style.background = gradient;
+    }
+
+    function fadeOutProgressBar(callback) {
+      const loadingState = document.getElementById('loadingState');
+      const cardsContainer = document.getElementById('cardsContainer');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let opacity = 1;
+      const fadeInterval = setInterval(() => {
+        opacity -= 0.05;
+        loadingState.style.opacity = opacity;
+        if (opacity <= 0) {
+          clearInterval(fadeInterval);
+          loadingState.style.opacity = 1;
+          loadingState.classList.add('hidden');
+          // 进度条完全消失后才显示卡片和翻页组件
+          cardsContainer.style.visibility = 'visible';
+          paginationContainer.style.visibility = 'visible';
+          // 重新触发卡片动画
+          const cards = cardsContainer.querySelectorAll('.glass-window');
+          cards.forEach((card, index) => {
+            card.classList.remove('card-animation');
+            void card.offsetWidth; // 触发重绘，让动画重新开始
+            card.classList.add('card-animation');
+            card.style.animationDelay = `${index * 0.1}s`;
+          });
+          callback();
+        }
+      }, 30);
+    }
+
     async function loadData() {
       if (!Storage().hasConfig()) {
         document.getElementById('emptyState').classList.remove('hidden');
@@ -2251,21 +2395,72 @@
       document.getElementById('loadingState').classList.remove('hidden');
       document.getElementById('emptyState').classList.add('hidden');
       document.getElementById('cardsContainer').innerHTML = '';
+      document.getElementById('cardsContainer').style.visibility = 'hidden';
+      document.getElementById('paginationContainer').style.visibility = 'hidden';
 
-      try {
-        const data = await Api().getFile();
-        Storage().saveSha(data.sha);
+      // 重置进度条
+      updateProgressBar(0);
 
-        const content = decodeURIComponent(escape(atob(data.content)));
-        state.entries = Parser().parse(content);
+      const startTime = Date.now();
+      let loadComplete = false;
+      let loadError = null;
+      let animationComplete = false;
 
-        Renderer().renderCards(state.entries);
-      } catch (err) {
-        Toast.show(`加载失败: ${err.message}`, 'error');
-        document.getElementById('emptyState').classList.remove('hidden');
-      } finally {
-        document.getElementById('loadingState').classList.add('hidden');
+      // 进度条动画（至少2秒），确保从0%开始并完整播放
+      const animateProgress = async () => {
+        // 先确保显示0%的状态
+        updateProgressBar(0);
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // 从0%开始完整播放
+        for (let i = 0; i <= 100; i += 1) {
+          await new Promise(resolve => setTimeout(resolve, 20));
+          updateProgressBar(i);
+        }
+        animationComplete = true;
+      };
+
+      // 实际加载数据
+      const doLoadData = async () => {
+        try {
+          const data = await Api().getFile();
+          Storage().saveSha(data.sha);
+
+          const content = decodeURIComponent(escape(atob(data.content)));
+          state.entries = Parser().parse(content);
+
+          Renderer().renderCards(state.entries);
+          loadComplete = true;
+        } catch (err) {
+          loadError = err;
+          loadComplete = true;
+        }
+      };
+
+      // 同时开始两个任务
+      const animationPromise = animateProgress();
+      const loadPromise = doLoadData();
+
+      // 等待数据加载完成
+      await loadPromise;
+
+      // 确保进度条播放完至少2秒
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 2000) {
+        await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
       }
+
+      // 等待动画完成
+      await animationPromise;
+
+      // 处理错误和显示状态
+      if (loadError) {
+        Toast.show(`加载失败: ${loadError.message}`, 'error');
+        document.getElementById('emptyState').classList.remove('hidden');
+      }
+
+      // 进度条慢慢透明消失后再显示卡片
+      fadeOutProgressBar(() => { });
     }
 
     async function saveAll() {
@@ -2315,6 +2510,11 @@
       });
 
       addRecordBtnMobile.addEventListener('click', () => {
+        // 如果控制台刚刚被触发，不执行添加记录
+        if (window._consoleJustToggled) {
+          window._consoleJustToggled = false;
+          return;
+        }
         createNewEntry();
       });
 
