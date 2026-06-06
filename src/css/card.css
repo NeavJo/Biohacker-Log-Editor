@@ -1,0 +1,294 @@
+.glass-window {
+  position: relative;
+  width: 70vw;
+  max-width: 660px;
+  aspect-ratio: 660 / 635;
+  margin: 0 auto;
+}
+
+/* 卡片阴影层 */
+.card-shadow-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  box-shadow: 10px 6px 8.2px rgba(0, 0, 0, 0.54);
+  pointer-events: none;
+  background: rgba(192, 192, 192, 0.1);
+  z-index: 0;
+}
+
+.glass-border-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.glass-border-middle {
+  position: absolute;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  border-top: 1px solid rgba(163, 163, 163, 0.7);
+  border-bottom: 1px solid rgba(163, 163, 163, 0.7);
+  border-left: none;
+  border-right: none;
+  border-radius: 20px;
+  top: 1px;
+  left: 1px;
+  z-index: 2;
+}
+
+.glass-border-inner {
+  position: absolute;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  border-left: 1px solid rgba(226, 226, 226, 0.7);
+  border-right: 1px solid rgba(226, 226, 226, 0.7);
+  border-top: none;
+  border-bottom: none;
+  border-radius: 20px;
+  top: 1px;
+  left: 1px;
+  z-index: 3;
+}
+
+.card-container {
+  position: absolute;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  top: 8px;
+  left: 8px;
+  overflow: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.card-header {
+  position: absolute;
+  width: 100%;
+  height: 60px;
+  top: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.67) 0%, rgba(63, 171, 103, 0.67) 17.31%, rgba(2, 18, 8, 0.67) 61.54%);
+  border-radius: 20px 20px 0px 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
+}
+
+.card-divider {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  top: 60px;
+  left: 0;
+  background: rgba(3, 25, 11, 0.65);
+}
+
+.card-content {
+  position: absolute;
+  width: 100%;
+  height: calc(100% - 62px);
+  top: 62px;
+  left: 0;
+  background: linear-gradient(180deg, rgba(2, 18, 8, 0.5963) 0%, rgba(4, 71, 29, 0.5226) 47.12%, rgba(2, 18, 8, 0.67) 100%);
+  border-radius: 0px 0px 20px 20px;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: white;
+  font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
+}
+
+.card-content .section-label {
+  font-weight: bold;
+}
+
+.card-content *,
+.card-header * {
+  color: white;
+  font-family: inherit;
+}
+
+.card-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-content::-webkit-scrollbar-track {
+  background: rgba(2, 18, 8, 0.3);
+  border-radius: 3px;
+}
+
+.card-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(63, 171, 103, 0.8) 0%, rgba(2, 18, 8, 0.9) 100%);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(63, 171, 103, 1) 0%, rgba(2, 18, 8, 1) 100%);
+}
+
+.card-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(63, 171, 103, 0.8) rgba(2, 18, 8, 0.3);
+}
+
+.card-content input,
+.card-content textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-content .special-tag {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+@media (max-width: 768px) {
+  .glass-window {
+    width: 95vw;
+    max-width: 423px;
+    aspect-ratio: 423 / 500;
+  }
+
+  .card-header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 15px;
+  }
+
+  .card-title {
+    font-size: 14px !important;
+  }
+
+  .card-btn {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .card-content {
+    padding: 12px 15px;
+  }
+
+  .section-icon {
+    font-size: 16px !important;
+  }
+
+  .section-label {
+    font-size: 12px !important;
+  }
+
+  .section-value {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-window {
+    width: 98vw;
+    max-width: 350px;
+    aspect-ratio: 350 / 550;
+  }
+
+  .card-header {
+    padding: 0 10px;
+  }
+
+  .card-title {
+    font-size: 12px !important;
+  }
+
+  .card-btn {
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+  }
+
+  .card-content {
+    padding: 10px 12px;
+  }
+
+  .section-value {
+    padding-left: 12px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .card-header {
+    padding: 12px 16px !important;
+  }
+
+  .card-content {
+    padding: 12px 16px !important;
+    gap: 8px !important;
+  }
+
+  .card-title {
+    font-size: 16px !important;
+  }
+
+  .card-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .section-icon {
+    font-size: 1.25rem !important;
+  }
+
+  .section-label {
+    font-size: 12px !important;
+  }
+
+  .section-value {
+    font-size: 14px !important;
+    padding-left: 36px !important;
+  }
+
+  .special-tag {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+
+  .add-special-btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    padding: 10px 14px !important;
+  }
+
+  .card-content {
+    padding: 10px 14px !important;
+  }
+
+  .section-value {
+    padding-left: 32px !important;
+  }
+
+  .special-notes-input {
+    min-height: 60px !important;
+  }
+}

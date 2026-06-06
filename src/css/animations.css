@@ -1,0 +1,224 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 卡片淡入上滑动画 */
+@keyframes card-fade-in-up {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.card-animation {
+  opacity: 0;
+  /* 确保开始时是隐藏的 */
+  animation: card-fade-in-up 0.5s ease forwards;
+}
+
+/* ============================================
+   翻页按钮样式
+   ============================================ */
+#paginationContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-prev,
+.pagination-next {
+  width: 33px;
+  height: 35px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s ease;
+}
+
+.pagination-prev {
+  background-image: url('../../assets/Bottons/Lastpage.svg');
+}
+
+.pagination-prev:hover {
+  transform: scale(1.1);
+}
+
+.pagination-next {
+  background-image: url('../../assets/Bottons/Lastpage.svg');
+  transform: scaleX(-1);
+}
+
+.pagination-next:hover {
+  transform: scaleX(-1) scale(1.1);
+}
+
+.pagination-page {
+  width: 25px;
+  height: 27px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s ease;
+}
+
+.pagination-page:hover {
+  transform: scale(1.1);
+}
+
+.pagination-page.current {
+  background-image: url('../../assets/Bottons/pagelight_on.svg');
+}
+
+.pagination-page:not(.current) {
+  background-image: url('../../assets/Bottons/pagelight_off.svg');
+}
+
+.pagination-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .add-record-btn {
+    display: none;
+  }
+
+  .add-record-btn-mobile {
+    display: block;
+  }
+
+  .status-bar {
+    justify-content: center;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 使用 CSS zoom 属性，它比 transform scale 更好，不会影响布局 */
+  #app {
+    zoom: 0.85;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 8px;
+  }
+
+  .glass-window {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ============================================
+   控制台样式
+   ============================================ */
+#console {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  height: 44px;
+  background: #000000;
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  display: none;
+  z-index: 99999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#console.active {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+#consoleInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #00ff00;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  caret-color: #00ff00;
+}
+
+#consoleInput::placeholder {
+  color: #006600;
+}
+
+#consoleCursor {
+  width: 8px;
+  height: 18px;
+  background: #00ff00;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .sidebar-form {
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .sidebar-title {
+    font-size: 18px !important;
+  }
+
+  .form-section-label {
+    font-size: 13px !important;
+  }
+
+  .page-title {
+    font-size: 20px !important;
+  }
+
+  .pagination-btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    min-width: 36px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    gap: 4px !important;
+  }
+
+  .page-title {
+    font-size: 18px !important;
+  }
+}

@@ -6,14 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BioHacker_Editor</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="src/css/style.css">
-  <!-- 鼠标光效 - 暂时禁用以排查问题 -->
-  <!-- <link rel="stylesheet" href="src/css/mouse-effects.css"> -->
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/status-bar.css">
+  <link rel="stylesheet" href="src/css/card.css">
+  <link rel="stylesheet" href="src/css/buttons.css">
+  <link rel="stylesheet" href="src/css/modals.css">
+  <link rel="stylesheet" href="src/css/notifications.css">
+  <link rel="stylesheet" href="src/css/animations.css">
+  <link rel="stylesheet" href="src/css/mouse-effects.css">
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-  <!-- 鼠标光效 - 暂时禁用以排查问题 -->
-  <!-- <div id="mouse-glow"></div> -->
+  <div id="mouse-glow"></div>
   <div id="app" class="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
     <div id="font-test" style="display: none;">
       <span class="emoji-replace">📅🌤️😴🍽️⚙️💡✅</span>
@@ -129,9 +133,18 @@
     </div>
   </div>
 
-  <!-- 鼠标光效 - 暂时禁用以排查问题 -->
-  <!-- <script src="src/js/mouse-effects.js"></script> -->
+  <script src="src/js/mouse-effects.js"></script>
+  <script src="src/js/constants.js"></script>
+  <script src="src/js/storage.js"></script>
+  <script src="src/js/toast.js"></script>
+  <script src="src/js/api.js"></script>
+  <script src="src/js/weather-service.js"></script>
+  <script src="src/js/parser.js"></script>
+  <script src="src/js/stringifier.js"></script>
+  <script src="src/js/renderer.js"></script>
+  <script src="src/js/progress.js"></script>
   <script src="src/js/main.js"></script>
+  <script src="src/js/console.js"></script>
 </body>
 
 </html>

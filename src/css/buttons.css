@@ -1,0 +1,100 @@
+/* 所有按钮通用样式 */
+.settings-btn,
+.header-btn,
+.card-btn,
+.add-special-btn {
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 12px 27px 12px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: medium;
+  color: black;
+  transition: all 0.5s ease;
+}
+
+/* 所有按钮hover通用样式 */
+.settings-btn:hover,
+.header-btn:hover,
+.card-btn:hover,
+.add-special-btn:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* 所有按钮hover span样式 */
+.settings-btn:hover span,
+.header-btn:hover span,
+.card-btn:hover span,
+.add-special-btn:hover span {
+  text-decoration: underline;
+}
+
+/* 所有按钮active状态样式 - 点击下凹效果 */
+.settings-btn:active,
+.header-btn:active,
+.card-btn:active,
+.add-special-btn:active {
+  box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 4px rgba(255, 255, 255, 0.4);
+  transform: translateY(2px);
+  transition: all 0.1s ease;
+}
+
+/* 具体按钮尺寸 */
+.settings-btn,
+.header-btn {
+  width: 72px;
+  height: 29px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.settings-btn:hover,
+.header-btn:hover {
+  width: 79.2px;
+  height: 31.9px;
+}
+
+.card-btn {
+  width: 48px;
+  height: 26px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.card-btn:hover {
+  width: 52.8px;
+  height: 28.6px;
+}
+
+.add-special-btn {
+  width: 40px;
+  height: 26px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.add-special-btn:hover {
+  width: 44px;
+  height: 28.6px;
+}
+
+@media (max-width: 640px) {
+  .card-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .add-special-btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .header-btn {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+}
