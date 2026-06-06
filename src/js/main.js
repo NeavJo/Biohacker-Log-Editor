@@ -1,972 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BioHacker_Editor</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    @font-face {
-      font-family: 'SerenityOS Emoji';
-      font-weight: 400;
-      font-style: normal;
-      font-display: block;
-      src: url('Skin/fonts/SerenityOS-Emoji.ttf') format('truetype');
-    }
-
-    body {
-      background-image: url('Skin/Background/windows_vista_9.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      font-family: 'SerenityOS Emoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
-    }
-
-    /* 设置面板输入框placeholder灰色 */
-    #settingsOverlay input::placeholder {
-      color: #9CA3AF !important;
-    }
-
-    #settingsOverlay textarea::placeholder {
-      color: #9CA3AF !important;
-    }
-
-    /* ============================================
-       顶部状态栏
-       ============================================ */
-    header {
-      position: relative;
-      width: 100%;
-      height: 100px;
-      margin-bottom: 24px;
-    }
-
-    /* 阴影层 - 专门承载阴影 */
-    .shadow-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 0px 0px 87px 200px;
-      box-shadow: 10px 6px 8.2px rgba(0, 0, 0, 0.54);
-      pointer-events: none;
-      background: rgba(192, 192, 192, 0.1);
-      z-index: 0;
-    }
-
-    /* 顶栏 - 主体（外黑边框） */
-    .status-bar {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: rgba(192, 192, 192, 0.29);
-      border: 1px solid rgba(0, 0, 0, 0.7);
-      border-radius: 0px 0px 87px 200px;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-sizing: border-box;
-      backdrop-filter: blur(7.35px);
-      z-index: 1;
-    }
-
-    /* 顶栏 - 中灰边框（与外框重叠，产生模糊玻璃效果） */
-    .status-bar::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: -1px;
-      width: calc(100% + 2px);
-      height: calc(100% + 2px);
-      border: 1px solid rgba(125, 125, 125, 0.4);
-      border-radius: 0px 0px 88px 201px;
-      pointer-events: none;
-    }
-
-    /* 顶栏 - 内白边框（与外框部分重叠，产生高光效果） */
-    .status-bar::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 0px 0px 87px 200px;
-      pointer-events: none;
-    }
-
-    /* 添加记录按钮 */
-    .add-record-btn {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-family: 'STZhongsong', '华文中宋', 'SimSun', 'SerenityOS Emoji', serif;
-      font-size: 24px;
-      font-weight: bold;
-      color: #1a5c1a;
-      text-align: center;
-      flex: 1;
-      transition: color 0.3s ease;
-    }
-
-    .add-record-btn:hover {
-      color: #228B22;
-      text-decoration: underline;
-    }
-
-    /* 按钮区域 */
-    .status-bar .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-
-
-    .glass-window {
-      position: relative;
-      width: 70vw;
-      max-width: 660px;
-      aspect-ratio: 660 / 635;
-      margin: 0 auto;
-    }
-
-    /* 卡片阴影层 */
-    .card-shadow-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 20px;
-      box-shadow: 10px 6px 8.2px rgba(0, 0, 0, 0.54);
-      pointer-events: none;
-      background: rgba(192, 192, 192, 0.1);
-      z-index: 0;
-    }
-
-    .glass-border-outer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 1px solid rgba(0, 0, 0, 0.7);
-      border-radius: 20px;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
-    .glass-border-middle {
-      position: absolute;
-      width: calc(100% - 2px);
-      height: calc(100% - 2px);
-      border-top: 1px solid rgba(163, 163, 163, 0.7);
-      border-bottom: 1px solid rgba(163, 163, 163, 0.7);
-      border-left: none;
-      border-right: none;
-      border-radius: 20px;
-      top: 1px;
-      left: 1px;
-      z-index: 2;
-    }
-
-    .glass-border-inner {
-      position: absolute;
-      width: calc(100% - 2px);
-      height: calc(100% - 2px);
-      border-left: 1px solid rgba(226, 226, 226, 0.7);
-      border-right: 1px solid rgba(226, 226, 226, 0.7);
-      border-top: none;
-      border-bottom: none;
-      border-radius: 20px;
-      top: 1px;
-      left: 1px;
-      z-index: 3;
-    }
-
-    .card-container {
-      position: absolute;
-      width: calc(100% - 16px);
-      height: calc(100% - 16px);
-      top: 8px;
-      left: 8px;
-      overflow: hidden;
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      z-index: 10;
-      backdrop-filter: blur(4px);
-    }
-
-    .card-header {
-      position: absolute;
-      width: 100%;
-      height: 60px;
-      top: 0;
-      left: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.67) 0%, rgba(63, 171, 103, 0.67) 17.31%, rgba(2, 18, 8, 0.67) 61.54%);
-      border-radius: 20px 20px 0px 0px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      box-sizing: border-box;
-      font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
-    }
-
-    .card-divider {
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      top: 60px;
-      left: 0;
-      background: rgba(3, 25, 11, 0.65);
-    }
-
-    .card-content {
-      position: absolute;
-      width: 100%;
-      height: calc(100% - 62px);
-      top: 62px;
-      left: 0;
-      background: linear-gradient(180deg, rgba(2, 18, 8, 0.5963) 0%, rgba(4, 71, 29, 0.5226) 47.12%, rgba(2, 18, 8, 0.67) 100%);
-      border-radius: 0px 0px 20px 20px;
-      padding: 15px 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      color: white;
-      font-family: 'Times New Roman', Times, 'SerenityOS Emoji', serif;
-    }
-
-    .card-content .section-label {
-      font-weight: bold;
-    }
-
-    .card-content *,
-    .card-header * {
-      color: white;
-      font-family: inherit;
-    }
-
-    .card-content::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .card-content::-webkit-scrollbar-track {
-      background: rgba(2, 18, 8, 0.3);
-      border-radius: 3px;
-    }
-
-    .card-content::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, rgba(63, 171, 103, 0.8) 0%, rgba(2, 18, 8, 0.9) 100%);
-      border-radius: 3px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .card-content::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, rgba(63, 171, 103, 1) 0%, rgba(2, 18, 8, 1) 100%);
-    }
-
-    .card-content {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(63, 171, 103, 0.8) rgba(2, 18, 8, 0.3);
-    }
-
-    .card-content input,
-    .card-content textarea {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .card-content .special-tag {
-      background: rgba(255, 255, 255, 0.2) !important;
-      color: white !important;
-    }
-
-    @media (max-width: 768px) {
-      .glass-window {
-        width: 95vw;
-        max-width: 423px;
-        aspect-ratio: 423 / 500;
-      }
-
-      .card-header {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0 15px;
-      }
-
-      .card-title {
-        font-size: 14px !important;
-      }
-
-      .card-btn {
-        padding: 4px 8px !important;
-        font-size: 12px !important;
-      }
-
-      .card-content {
-        padding: 12px 15px;
-      }
-
-      .section-icon {
-        font-size: 16px !important;
-      }
-
-      .section-label {
-        font-size: 12px !important;
-      }
-
-      .section-value {
-        font-size: 12px !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .glass-window {
-        width: 98vw;
-        max-width: 350px;
-        aspect-ratio: 350 / 550;
-      }
-
-      .card-header {
-        padding: 0 10px;
-      }
-
-      .card-title {
-        font-size: 12px !important;
-      }
-
-      .card-btn {
-        padding: 3px 6px !important;
-        font-size: 10px !important;
-      }
-
-      .card-content {
-        padding: 10px 12px;
-      }
-
-      .section-value {
-        padding-left: 12px !important;
-      }
-    }
-
-    .settings-btn {
-      box-sizing: border-box;
-      width: 72px;
-      height: 29px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      border-radius: 12px 27px 12px 8px;
-      padding: 0 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: medium;
-      color: black;
-      transition: all 0.5s ease;
-    }
-
-    .settings-btn:hover {
-      width: 79.2px;
-      height: 31.9px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 12px 27px 12px 8px;
-    }
-
-    .settings-btn:hover span {
-      text-decoration: underline;
-    }
-
-    .header-btn {
-      box-sizing: border-box;
-      width: 72px;
-      height: 29px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      border-radius: 12px 27px 12px 8px;
-      padding: 0 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: medium;
-      color: black;
-      transition: all 0.5s ease;
-    }
-
-    .header-btn:hover {
-      width: 79.2px;
-      height: 31.9px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 12px 27px 12px 8px;
-    }
-
-    .header-btn:hover span {
-      text-decoration: underline;
-    }
-
-    .card-btn {
-      box-sizing: border-box;
-      width: 48px;
-      height: 26px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      border-radius: 12px 27px 12px 8px;
-      padding: 0 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: medium;
-      color: black;
-      transition: all 0.5s ease;
-    }
-
-    .card-btn:hover {
-      width: 52.8px;
-      height: 28.6px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 12px 27px 12px 8px;
-    }
-
-    .card-btn:hover span {
-      text-decoration: underline;
-    }
-
-    .add-special-btn {
-      box-sizing: border-box;
-      width: 40px;
-      height: 26px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(54, 95, 61, 0.75) 75.48%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      border-radius: 12px 27px 12px 8px;
-      padding: 0 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: medium;
-      color: black;
-      transition: all 0.5s ease;
-    }
-
-    .add-special-btn:hover {
-      width: 44px;
-      height: 28.6px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(92, 192, 110, 0.75) 39.42%, rgba(186, 255, 199, 0.75) 75.48%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 12px 27px 12px 8px;
-    }
-
-    .add-special-btn:hover span {
-      text-decoration: underline;
-    }
-
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal-content {
-      position: relative;
-      background: #000000;
-      border: 7px solid #DDDDDD;
-      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-      filter: drop-shadow(7px 12px 4px rgba(0, 0, 0, 0.25));
-      padding: 24px;
-      width: 90%;
-      max-width: 520px;
-      max-height: 651px;
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-    }
-
-    .modal-content::before {
-      content: '';
-      position: absolute;
-      top: -3px;
-      left: -3px;
-      right: -3px;
-      bottom: -3px;
-      border: 3px solid #9A9A9A;
-      border-radius: inherit;
-      pointer-events: none;
-      filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
-    }
-
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-    }
-
-    .modal-content h2,
-    .modal-content label,
-    .modal-content p,
-    .modal-content input::placeholder {
-      color: #00FF00;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
-      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
-
-    .modal-content input {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid #00FF00;
-      border-radius: 0;
-      color: #00FF00;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
-      padding: 8px 0;
-      outline: none;
-      transition: border-color 0.3s ease;
-    }
-
-    .modal-content input:focus {
-      border-bottom-color: #00FF00;
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-    }
-
-    .modal-content #saveSettingsBtn,
-    .modal-content .save-settings-btn {
-      background: transparent;
-      border: none;
-      color: #00FF00;
-      font-family: 'Courier New', Courier, monospace;
-      font-weight: bold;
-      text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-      text-decoration: underline;
-      transition: all 0.3s ease;
-      padding: 12px 24px;
-      width: 100%;
-    }
-
-    .modal-content #saveSettingsBtn:hover,
-    .modal-content .save-settings-btn:hover {
-      background: rgba(0, 255, 0, 0.1);
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    }
-
-    .modal-content #closeSettingsBtn,
-    .modal-content .close-btn {
-      color: #00FF00;
-      background: transparent;
-      border: none;
-      text-decoration: underline;
-      transition: all 0.3s ease;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 16px;
-      padding: 4px 8px;
-    }
-
-    .modal-content #closeSettingsBtn:hover,
-    .modal-content .close-btn:hover {
-      background: rgba(0, 255, 0, 0.1);
-    }
-
-    /* 通知栏容器 */
-    .notification-container {
-      position: fixed;
-      top: 120px;
-      right: 0;
-      width: 332px;
-      height: 272px;
-      pointer-events: none;
-      z-index: 9999;
-      overflow: visible;
-    }
-
-    /* 通知-当前 */
-    .notification-current {
-      box-sizing: border-box;
-      position: absolute;
-      width: 284px;
-      height: 101px;
-      top: 0;
-      right: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
-      border-radius: 80px 0px 0px 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 40px 10px 30px;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 14px;
-      font-weight: bold;
-      color: #1a1a2e;
-      transition: all 0.3s ease;
-      pointer-events: auto;
-      cursor: pointer;
-      word-wrap: normal;
-      overflow: visible;
-      white-space: nowrap;
-      line-height: 1.2;
-    }
-
-    /* 通知-之前 */
-    .notification-previous {
-      box-sizing: border-box;
-      position: absolute;
-      width: 243px;
-      height: 86px;
-      top: 105px;
-      right: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
-      border-radius: 80px 0px 0px 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 15px;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 12px;
-      font-weight: bold;
-      color: #1a1a2e;
-      transition: all 0.3s ease;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-
-    /* 通知-之前2 */
-    .notification-previous2 {
-      box-sizing: border-box;
-      position: absolute;
-      width: 243px;
-      height: 86px;
-      top: 195px;
-      right: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
-      border: 1px solid rgba(0, 0, 0, 0.3);
-      box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
-      border-radius: 80px 0px 0px 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 15px;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 12px;
-      font-weight: bold;
-      color: #1a1a2e;
-      transition: all 0.3s ease;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-
-    /* 通知进入动画 */
-    @keyframes notification-enter {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* 通知退出动画 */
-    @keyframes notification-exit {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-
-    .notification-enter {
-      animation: notification-enter 0.5s ease forwards;
-    }
-
-    .notification-exit {
-      animation: notification-exit 0.5s ease forwards;
-    }
-
-    @media (max-width: 640px) {
-      body {
-        font-size: 14px;
-      }
-
-      .card-header {
-        padding: 12px 16px !important;
-      }
-
-      .card-content {
-        padding: 12px 16px !important;
-        gap: 8px !important;
-      }
-
-      .card-title {
-        font-size: 16px !important;
-      }
-
-      .card-btn {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-      }
-
-      .section-icon {
-        font-size: 1.25rem !important;
-      }
-
-      .section-label {
-        font-size: 12px !important;
-      }
-
-      .section-value {
-        font-size: 14px !important;
-        padding-left: 36px !important;
-      }
-
-      .special-tag {
-        font-size: 11px !important;
-        padding: 4px 8px !important;
-      }
-
-      .add-special-btn {
-        padding: 4px 8px !important;
-        font-size: 11px !important;
-      }
-
-      .form-input,
-      .form-textarea {
-        padding: 10px 12px !important;
-        font-size: 14px !important;
-      }
-
-      .sidebar-form {
-        padding: 16px !important;
-        gap: 12px !important;
-      }
-
-      .sidebar-title {
-        font-size: 18px !important;
-      }
-
-      .form-section-label {
-        font-size: 13px !important;
-      }
-
-      .header-btn {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-      }
-
-      .page-title {
-        font-size: 20px !important;
-      }
-
-      .modal-content {
-        padding: 16px !important;
-        margin: 16px !important;
-        max-height: 90vh !important;
-        overflow-y: auto !important;
-      }
-
-      .pagination-btn {
-        padding: 6px 12px !important;
-        font-size: 12px !important;
-        min-width: 36px !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .header-actions {
-        gap: 4px !important;
-      }
-
-      .page-title {
-        font-size: 18px !important;
-      }
-
-      .card-header {
-        padding: 10px 14px !important;
-      }
-
-      .card-content {
-        padding: 10px 14px !important;
-      }
-
-      .section-value {
-        padding-left: 32px !important;
-      }
-
-      .special-notes-input {
-        min-height: 60px !important;
-      }
-    }
-  </style>
-</head>
-
-<body class="bg-gray-50 min-h-screen">
-  <div id="app" class="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
-    <div id="font-test" style="display: none;">
-      <span class="emoji-replace">📅🌤️😴🍽️⚙️💡✅</span>
-    </div>
-    <header class="mb-6 sm:mb-8">
-      <div class="shadow-wrapper"></div>
-      <div class="status-bar">
-        <button id="addRecordBtn" class="add-record-btn">
-          <span>点击此处添加记录</span>
-        </button>
-        <div class="header-actions flex gap-1 sm:gap-2">
-          <button id="settingsBtn" class="settings-btn header-btn" title="设置">
-            <span>设置</span>
-          </button>
-          <button id="refreshBtn" class="refresh-btn header-btn">
-            <span>刷新</span>
-          </button>
-          <button id="saveAllBtn" class="save-btn header-btn">
-            <span>保存</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- 通知栏容器 -->
-    <div id="notification-container" class="notification-container">
-    </div>
-
-    <main id="mainContent">
-      <div id="loadingState" class="hidden text-center py-20">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent">
-        </div>
-        <p class="mt-4 text-gray-600">加载中...</p>
-      </div>
-
-      <div id="emptyState" class="hidden text-center py-20">
-        <p class="text-gray-500 text-lg">暂无日志记录</p>
-        <p class="text-gray-500 text-sm mt-2">请在设置中配置 GitHub 信息后加载日志</p>
-      </div>
-
-      <div id="cardsContainer" class="grid gap-6"></div>
-
-      <div id="paginationContainer" class="mt-6 flex justify-center items-center gap-2 flex-wrap"></div>
-    </main>
-  </div>
-
-  <div id="settingsOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">设置</h2>
-        <button id="closeSettingsBtn" class="close-btn">X</button>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">GitHub Token</label>
-          <input type="password" id="tokenInput"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="ghp_xxxxxxxxxxxx">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
-          <input type="text" id="usernameInput"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="your-username">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">仓库名</label>
-          <input type="text" id="repoInput"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="health-log">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">文件路径</label>
-          <input type="text" id="pathInput"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="health.txt">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">🏠 所在城市</label>
-          <input type="text" id="postalCode" placeholder="如：深圳 或 南宁 青秀区"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-          <p class="text-xs text-gray-500 mt-1">用于查询当地天气</p>
-        </div>
-
-        <div class="pt-4 border-t border-gray-200">
-          <button id="saveSettingsBtn" class="save-settings-btn">保存设置</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="deleteConfirmOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <div class="text-center">
-        <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-          <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-            </path>
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-gray-800 mb-2">确认删除</h2>
-        <p class="text-gray-600 mb-6" id="deleteConfirmText">确定要删除这条记录吗？此操作不可恢复。</p>
-        <div class="flex gap-3 justify-center">
-          <button id="cancelDeleteBtn"
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
-            取消
-          </button>
-          <button id="confirmDeleteBtn"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors">
-            删除
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
     const STORAGE_KEYS = {
       token: 'github_token',
       username: 'github_username',
@@ -1001,6 +32,207 @@
       currentPage: 1,
       pageSize: 7
     };
+
+    // 控制台模块
+    const Console = (() => {
+      let isActive = false;
+      let keySequence = '';
+      const expectedSequence = 'cmd';
+      let consoleEl = null;
+      let inputEl = null;
+
+      // 移动端触发相关
+      let mobileClickTimes = [];
+      const mobileClickThreshold = 4; // 需要4次点击
+      const mobileClickWindow = 4000; // 4秒时间窗口
+
+      const getElements = () => {
+        if (!consoleEl) {
+          consoleEl = document.getElementById('console');
+          inputEl = document.getElementById('consoleInput');
+        }
+        return { consoleEl, inputEl };
+      };
+
+      const show = () => {
+        const { consoleEl, inputEl } = getElements();
+        if (consoleEl && inputEl) {
+          consoleEl.classList.add('active');
+          inputEl.focus();
+          setTimeout(() => {
+            inputEl.value = '';
+          }, 0);
+          isActive = true;
+        }
+      };
+
+      const hide = () => {
+        const { consoleEl, inputEl } = getElements();
+        if (consoleEl && inputEl) {
+          consoleEl.classList.remove('active');
+          inputEl.value = '';
+          isActive = false;
+          keySequence = '';
+        }
+      };
+
+      const toggle = () => {
+        if (isActive) {
+          hide();
+        } else {
+          show();
+        }
+      };
+
+      const executeCommand = (cmd) => {
+        cmd = cmd.trim();
+        if (!cmd) {
+          return;
+        }
+
+        // create(yyyy.m.d) 命令
+        const createMatch = cmd.match(/^create\((\d{4}\.\d{1,2}\.\d{1,2})\)$/);
+        if (createMatch) {
+          const date = createMatch[1];
+          const [year, month, day] = date.split('.').map(Number);
+
+          // 日期合法性校验
+          if (month < 1 || month > 12) {
+            Toast.show(`Invalid month: ${month}.`, 'error');
+            return;
+          }
+
+          const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+          // 闰年：能被4整除但不能被100整除，或者能被400整除
+          if ((year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)) {
+            daysInMonth[1] = 29;
+          }
+          if (day < 1 || day > daysInMonth[month - 1]) {
+            Toast.show(`Invalid day: ${day} for month ${month}.`, 'error');
+            return;
+          }
+
+          if (state.entries.some(entry => entry.date === date)) {
+            Toast.show(`Card for ${date} already exists.`, 'error');
+          } else {
+            const newEntry = {
+              date,
+              weather: { description: '', tempLow: null, tempHigh: null, note: '' },
+              sleep: { sleepTime: '', wakeTime: '', wakeType: '', note: '' },
+              diet: { breakfast: '', lunch: '', dinner: '' },
+              exercise: '',
+              note: '',
+              specialNotes: []
+            };
+            state.entries.unshift(newEntry);
+            state.currentPage = 1;
+            Renderer().renderCards(state.entries);
+            Toast.show(`Created card for ${date}`);
+          }
+          return;
+        }
+
+        // tp(yyyy.m.d) 命令 - 跳转到指定日期的页面
+        const tpMatch = cmd.match(/^tp\((\d{4}\.\d{1,2}\.\d{1,2})\)$/);
+        if (tpMatch) {
+          const date = tpMatch[1];
+          const sortedEntries = [...state.entries].sort((a, b) => {
+            const dateA = a.date.split('.').map(Number);
+            const dateB = b.date.split('.').map(Number);
+            if (dateA[0] !== dateB[0]) return dateB[0] - dateA[0];
+            if (dateA[1] !== dateB[1]) return dateB[1] - dateA[1];
+            return dateB[2] - dateA[2];
+          });
+          const entryIndex = sortedEntries.findIndex(e => e.date === date);
+          if (entryIndex === -1) {
+            Toast.show(`Card for ${date} not found.`, 'error');
+          } else {
+            const targetPage = Math.floor(entryIndex / state.pageSize) + 1;
+            state.currentPage = targetPage;
+            Renderer().renderCards(state.entries);
+            setTimeout(() => {
+              const card = document.getElementById(`card-${entryIndex % state.pageSize}`);
+              if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 100);
+            Toast.show(`Jumped to page ${targetPage}`);
+          }
+          return;
+        }
+
+        // 未知命令
+        Toast.show('unknown command.');
+      };
+
+      const handleKeyDown = (e) => {
+        // 如果控制台已激活，忽略其他按键监听
+        if (isActive) return;
+
+        // 监听字母按键
+        if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+          keySequence += e.key.toLowerCase();
+
+          // 检查是否匹配序列
+          if (keySequence.endsWith(expectedSequence)) {
+            toggle();
+            keySequence = '';
+          } else if (!expectedSequence.startsWith(keySequence)) {
+            // 序列不匹配，重置
+            keySequence = '';
+          }
+        }
+      };
+
+      const handleInputKeyDown = (e) => {
+        if (e.key === 'Enter') {
+          const { inputEl } = getElements();
+          const cmd = inputEl.value;
+          hide();
+          if (cmd) {
+            executeCommand(cmd);
+          }
+        } else if (e.key === 'Escape') {
+          hide();
+        }
+      };
+
+      // 移动端点击处理
+      const handleMobileClick = (e) => {
+        const now = Date.now();
+        // 过滤掉超过时间窗口的点击
+        mobileClickTimes = mobileClickTimes.filter(t => now - t < mobileClickWindow);
+        // 添加当前点击时间
+        mobileClickTimes.push(now);
+
+        // 检查是否达到阈值
+        if (mobileClickTimes.length >= mobileClickThreshold) {
+          mobileClickTimes = [];
+          toggle();
+          // 设置标志，阻止默认的添加记录行为
+          window._consoleJustToggled = true;
+          e.preventDefault();
+          e.stopPropagation();
+        } else {
+          window._consoleJustToggled = false;
+        }
+      };
+
+      const init = () => {
+        document.addEventListener('keydown', handleKeyDown);
+        const { inputEl } = getElements();
+        if (inputEl) {
+          inputEl.addEventListener('keydown', handleInputKeyDown);
+        }
+        // 移动端按钮点击监听（使用捕获阶段，确保先执行）
+        const mobileBtn = document.getElementById('addRecordBtnMobile');
+        if (mobileBtn) {
+          mobileBtn.addEventListener('click', handleMobileClick, true);
+        }
+      };
+
+      return { init };
+    })();
 
     function Storage() {
       return {
@@ -1194,46 +426,46 @@
 
     function Api() {
       const storage = Storage();
+
+      const getBaseUrl = () => {
+        const { username, repo, path } = state.config;
+        return `${CONFIG.apiBase}/${username}/${repo}/contents/${path}`;
+      };
+
+      const getBaseHeaders = () => ({
+        'Authorization': `Bearer ${state.config.token}`,
+        'Accept': 'application/vnd.github+json'
+      });
+
+      const handleResponse = async (response) => {
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.message || `HTTP ${response.status}`);
+        }
+        return await response.json();
+      };
+
       return {
         async getFile() {
-          const { token, username, repo, path } = state.config;
-          const url = `${CONFIG.apiBase}/${username}/${repo}/contents/${path}`;
-          const response = await fetch(url, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/vnd.github+json'
-            }
+          const response = await fetch(getBaseUrl(), {
+            headers: getBaseHeaders()
           });
-          if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.message || `HTTP ${response.status}`);
-          }
-          return await response.json();
+          return handleResponse(response);
         },
 
         async putFile(content, message) {
-          const { token, username, repo, path } = state.config;
-          const url = `${CONFIG.apiBase}/${username}/${repo}/contents/${path}`;
           const encodedContent = btoa(unescape(encodeURIComponent(content)));
           const body = {
             message,
             content: encodedContent,
             sha: state.fileSha
           };
-          const response = await fetch(url, {
+          const response = await fetch(getBaseUrl(), {
             method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/vnd.github+json',
-              'Content-Type': 'application/json'
-            },
+            headers: { ...getBaseHeaders(), 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
           });
-          if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.message || `HTTP ${response.status}`);
-          }
-          return await response.json();
+          return handleResponse(response);
         }
       };
     }
@@ -1333,27 +565,14 @@
             3: '阴',
             45: '雾',
             48: '雾凇',
-            51: '小雨',
-            53: '中雨',
-            55: '大雨',
-            56: '冻雨',
-            57: '大冻雨',
-            61: '小雨',
-            63: '中雨',
-            65: '大雨',
-            66: '冻雨',
-            67: '大冻雨',
-            71: '小雪',
-            73: '中雪',
-            75: '大雪',
-            77: '雪粒',
-            81: '阵雨',
-            82: '强阵雨',
-            85: '阵雪',
-            86: '强阵雪',
-            95: '雷阵雨',
-            96: '雷阵雨伴小冰雹',
-            99: '雷阵雨伴大冰雹'
+            51: '小雨', 53: '中雨', 55: '大雨',
+            56: '冻雨', 57: '大冻雨',
+            61: '小雨', 63: '中雨', 65: '大雨',
+            66: '冻雨', 67: '大冻雨',
+            71: '小雪', 73: '中雪', 75: '大雪', 77: '雪粒',
+            81: '阵雨', 82: '强阵雨',
+            85: '阵雪', 86: '强阵雪',
+            95: '雷阵雨', 96: '雷阵雨伴小冰雹', 99: '雷阵雨伴大冰雹'
           };
           return weatherCodes[code] || '多云';
         }
@@ -1557,6 +776,9 @@
           pageEntries.forEach((entry, index) => {
             const globalIndex = startIndex + index;
             const card = this.createCard(entry, globalIndex);
+            // 添加淡入上滑动画，按顺序延迟
+            card.classList.add('card-animation');
+            card.style.animationDelay = `${index * 0.1}s`;
             container.appendChild(card);
           });
 
@@ -1576,9 +798,9 @@
           let html = '';
 
           if (state.currentPage > 1) {
-            html += `<button class="pagination-prev px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors">上一页</button>`;
+            html += `<button class="pagination-prev"></button>`;
           } else {
-            html += `<button class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">上一页</button>`;
+            html += `<button class="pagination-prev pagination-disabled"></button>`;
           }
 
           const maxVisible = 5;
@@ -1590,7 +812,7 @@
           }
 
           if (startPage > 1) {
-            html += `<button class="pagination-page px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors" data-page="1">1</button>`;
+            html += `<button class="pagination-page ${state.currentPage === 1 ? 'current' : ''}" data-page="1"></button>`;
             if (startPage > 2) {
               html += `<span class="px-2 text-gray-400">...</span>`;
             }
@@ -1598,9 +820,9 @@
 
           for (let i = startPage; i <= endPage; i++) {
             if (i === state.currentPage) {
-              html += `<button class="px-3 py-1 bg-blue-500 text-white rounded text-sm">${i}</button>`;
+              html += `<button class="pagination-page current" data-page="${i}"></button>`;
             } else {
-              html += `<button class="pagination-page px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors" data-page="${i}">${i}</button>`;
+              html += `<button class="pagination-page" data-page="${i}"></button>`;
             }
           }
 
@@ -1608,13 +830,13 @@
             if (endPage < totalPages - 1) {
               html += `<span class="px-2 text-gray-400">...</span>`;
             }
-            html += `<button class="pagination-page px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors" data-page="${totalPages}">${totalPages}</button>`;
+            html += `<button class="pagination-page ${state.currentPage === totalPages ? 'current' : ''}" data-page="${totalPages}"></button>`;
           }
 
           if (state.currentPage < totalPages) {
-            html += `<button class="pagination-next px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors">下一页</button>`;
+            html += `<button class="pagination-next"></button>`;
           } else {
-            html += `<button class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">下一页</button>`;
+            html += `<button class="pagination-next pagination-disabled"></button>`;
           }
 
           container.innerHTML = html;
@@ -1622,8 +844,14 @@
           container.querySelectorAll('.pagination-page').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const page = parseInt(e.target.dataset.page);
+              const wasLastPage = state.currentPage === totalPages;
               state.currentPage = page;
               this.renderCards(state.entries);
+              if (wasLastPage && page < totalPages) {
+                requestAnimationFrame(() => {
+                  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+                });
+              }
             });
           });
 
@@ -1631,8 +859,14 @@
           if (prevBtn) {
             prevBtn.addEventListener('click', () => {
               if (state.currentPage > 1) {
+                const wasLastPage = state.currentPage === totalPages;
                 state.currentPage--;
                 this.renderCards(state.entries);
+                if (wasLastPage) {
+                  requestAnimationFrame(() => {
+                    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+                  });
+                }
               }
             });
           }
@@ -1888,10 +1122,7 @@
           };
         },
 
-        formatWeather(weather) {
-          if (!weather.description && weather.tempLow === null) {
-            return '-';
-          }
+        buildWeatherString(weather, options = {}) {
           let result = weather.description || '';
           if (weather.tempLow !== null && weather.tempHigh !== null) {
             result += `，${weather.tempLow}-${weather.tempHigh}℃`;
@@ -1899,21 +1130,36 @@
           if (weather.note) {
             result += ` （${weather.note}）`;
           }
-          return result || '-';
+          if (options.forDisplay && (!result || (!weather.description && weather.tempLow === null))) {
+            return '-';
+          }
+          return result;
         },
 
-        formatSleep(sleep) {
+        buildSleepString(sleep, options = {}) {
           if (!sleep.sleepTime && !sleep.wakeTime) {
+            if (options.forEdit) {
+              return sleep.note ? `: 睡着，: 苏醒/闹钟（${sleep.note}）` : ': 睡着，: 苏醒/闹钟';
+            }
             return sleep.note ? `（${sleep.note}）` : '-';
           }
-          let result = `${sleep.sleepTime} 睡着 → ${sleep.wakeTime} ${sleep.wakeType}`;
+          const separator = options.forEdit ? '，' : ' → ';
+          let result = `${sleep.sleepTime} 睡着${separator}${sleep.wakeTime} ${sleep.wakeType}`;
           if (sleep.note) {
             result += `（${sleep.note}）`;
           }
           return result;
         },
 
-        formatDiet(diet) {
+        buildDietString(diet, options = {}) {
+          if (options.forEdit) {
+            let result = '';
+            if (diet.breakfast) {
+              result += `早饭：${diet.breakfast}、`;
+            }
+            result += `午饭：${diet.lunch || ''}、晚饭：${diet.dinner || ''}`;
+            return result;
+          }
           if (!diet.breakfast && !diet.lunch && !diet.dinner) {
             return '-';
           }
@@ -1928,40 +1174,110 @@
           return parts.join('\n');
         },
 
+        formatWeather(weather) {
+          return this.buildWeatherString(weather, { forDisplay: true });
+        },
+
+        formatSleep(sleep) {
+          return this.buildSleepString(sleep, { forDisplay: true });
+        },
+
+        formatDiet(diet) {
+          return this.buildDietString(diet, { forDisplay: true });
+        },
+
         reconstructWeather(weather) {
-          let result = weather.description;
-          if (weather.tempLow !== null && weather.tempHigh !== null) {
-            result += `，${weather.tempLow}-${weather.tempHigh}℃`;
-          }
-          if (weather.note) {
-            result += ` （${weather.note}）`;
-          }
-          return result;
+          return this.buildWeatherString(weather);
         },
 
         reconstructSleep(sleep) {
-          if (!sleep.sleepTime && !sleep.wakeTime) {
-            if (sleep.note) {
-              return `: 睡着，: 苏醒/闹钟（${sleep.note}）`;
-            }
-            return ': 睡着，: 苏醒/闹钟';
-          }
-          let result = `${sleep.sleepTime} 睡着，${sleep.wakeTime} ${sleep.wakeType}`;
-          if (sleep.note) {
-            result += `（${sleep.note}）`;
-          }
-          return result;
+          return this.buildSleepString(sleep, { forEdit: true });
         },
 
         reconstructDiet(diet) {
-          let result = '';
-          if (diet.breakfast) {
-            result += `早饭：${diet.breakfast}、`;
-          }
-          result += `午饭：${diet.lunch || ''}、晚饭：${diet.dinner || ''}`;
-          return result;
+          return this.buildDietString(diet, { forEdit: true });
         }
       };
+    }
+
+    function updateProgressBar(progress) {
+      const progressBar = document.getElementById('progressBar');
+      if (!progressBar) return;
+
+      // 确保进度在合理范围内
+      progress = Math.max(0, Math.min(100, progress));
+
+      let gradient;
+      if (progress <= 0) {
+        // 0% 状态：全灰色
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 0%, 
+          rgba(123,214,147,0.85) 0%, 
+          rgba(0,183,49,0.85) 0%, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(200,200,200,0.6) 0%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 25) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 50) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else if (progress <= 75) {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) 50%, 
+          rgba(0,183,49,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      } else {
+        gradient = `linear-gradient(180deg, rgba(255,255,255,0.4) 33.17%, rgba(204,204,204,0) 50%, rgba(153,153,153,0) 100%), linear-gradient(90deg, 
+          rgba(83,140,98,0.85) 0%, 
+          rgba(0,183,49,0.85) 24.52%, 
+          rgba(123,214,147,0.85) 50%, 
+          rgba(0,183,49,0.85) 75%, 
+          rgba(83,140,98,0.85) ${progress * 0.98}%, 
+          rgba(200,200,200,0.6) ${progress}%, 
+          rgba(200,200,200,0.6) 100%)`;
+      }
+      progressBar.style.background = gradient;
+    }
+
+    function fadeOutProgressBar(callback) {
+      const loadingState = document.getElementById('loadingState');
+      const cardsContainer = document.getElementById('cardsContainer');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let opacity = 1;
+      const fadeInterval = setInterval(() => {
+        opacity -= 0.05;
+        loadingState.style.opacity = opacity;
+        if (opacity <= 0) {
+          clearInterval(fadeInterval);
+          loadingState.style.opacity = 1;
+          loadingState.classList.add('hidden');
+          // 进度条完全消失后才显示卡片和翻页组件
+          cardsContainer.style.visibility = 'visible';
+          paginationContainer.style.visibility = 'visible';
+          // 重新触发卡片动画
+          const cards = cardsContainer.querySelectorAll('.glass-window');
+          cards.forEach((card, index) => {
+            card.classList.remove('card-animation');
+            void card.offsetWidth; // 触发重绘，让动画重新开始
+            card.classList.add('card-animation');
+            card.style.animationDelay = `${index * 0.1}s`;
+          });
+          callback();
+        }
+      }, 30);
     }
 
     async function loadData() {
@@ -1973,21 +1289,72 @@
       document.getElementById('loadingState').classList.remove('hidden');
       document.getElementById('emptyState').classList.add('hidden');
       document.getElementById('cardsContainer').innerHTML = '';
+      document.getElementById('cardsContainer').style.visibility = 'hidden';
+      document.getElementById('paginationContainer').style.visibility = 'hidden';
 
-      try {
-        const data = await Api().getFile();
-        Storage().saveSha(data.sha);
+      // 重置进度条
+      updateProgressBar(0);
 
-        const content = decodeURIComponent(escape(atob(data.content)));
-        state.entries = Parser().parse(content);
+      const startTime = Date.now();
+      let loadComplete = false;
+      let loadError = null;
+      let animationComplete = false;
 
-        Renderer().renderCards(state.entries);
-      } catch (err) {
-        Toast.show(`加载失败: ${err.message}`, 'error');
-        document.getElementById('emptyState').classList.remove('hidden');
-      } finally {
-        document.getElementById('loadingState').classList.add('hidden');
+      // 进度条动画（至少2秒），确保从0%开始并完整播放
+      const animateProgress = async () => {
+        // 先确保显示0%的状态
+        updateProgressBar(0);
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // 从0%开始完整播放
+        for (let i = 0; i <= 100; i += 1) {
+          await new Promise(resolve => setTimeout(resolve, 20));
+          updateProgressBar(i);
+        }
+        animationComplete = true;
+      };
+
+      // 实际加载数据
+      const doLoadData = async () => {
+        try {
+          const data = await Api().getFile();
+          Storage().saveSha(data.sha);
+
+          const content = decodeURIComponent(escape(atob(data.content)));
+          state.entries = Parser().parse(content);
+
+          Renderer().renderCards(state.entries);
+          loadComplete = true;
+        } catch (err) {
+          loadError = err;
+          loadComplete = true;
+        }
+      };
+
+      // 同时开始两个任务
+      const animationPromise = animateProgress();
+      const loadPromise = doLoadData();
+
+      // 等待数据加载完成
+      await loadPromise;
+
+      // 确保进度条播放完至少2秒
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 2000) {
+        await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
       }
+
+      // 等待动画完成
+      await animationPromise;
+
+      // 处理错误和显示状态
+      if (loadError) {
+        Toast.show(`加载失败: ${loadError.message}`, 'error');
+        document.getElementById('emptyState').classList.remove('hidden');
+      }
+
+      // 进度条慢慢透明消失后再显示卡片
+      fadeOutProgressBar(() => { });
     }
 
     async function saveAll() {
@@ -2010,69 +1377,99 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       Storage().loadConfig();
+      Console.init();
 
-      document.getElementById('addRecordBtn').addEventListener('click', () => {
+      const $ = (id) => document.getElementById(id);
+
+      const addRecordBtn = $('addRecordBtn');
+      const addRecordBtnMobile = $('addRecordBtnMobile');
+      const settingsBtn = $('settingsBtn');
+      const closeSettingsBtn = $('closeSettingsBtn');
+      const settingsOverlay = $('settingsOverlay');
+      const saveSettingsBtn = $('saveSettingsBtn');
+      const refreshBtn = $('refreshBtn');
+      const saveAllBtn = $('saveAllBtn');
+      const cancelDeleteBtn = $('cancelDeleteBtn');
+      const deleteConfirmOverlay = $('deleteConfirmOverlay');
+      const confirmDeleteBtn = $('confirmDeleteBtn');
+      const deleteConfirmText = $('deleteConfirmText');
+      const tokenInput = $('tokenInput');
+      const usernameInput = $('usernameInput');
+      const repoInput = $('repoInput');
+      const pathInput = $('pathInput');
+      const postalCodeInput = $('postalCode');
+
+      addRecordBtn.addEventListener('click', () => {
         createNewEntry();
       });
 
-      document.getElementById('settingsBtn').addEventListener('click', () => {
-        document.getElementById('tokenInput').value = state.config.token;
-        document.getElementById('usernameInput').value = state.config.username;
-        document.getElementById('repoInput').value = state.config.repo;
-        document.getElementById('pathInput').value = state.config.path;
-        document.getElementById('postalCode').value = state.postalCode;
-        document.getElementById('settingsOverlay').classList.add('active');
+      addRecordBtnMobile.addEventListener('click', () => {
+        // 如果控制台刚刚被触发，不执行添加记录
+        if (window._consoleJustToggled) {
+          window._consoleJustToggled = false;
+          return;
+        }
+        createNewEntry();
       });
 
-      document.getElementById('closeSettingsBtn').addEventListener('click', () => {
-        document.getElementById('settingsOverlay').classList.remove('active');
+      settingsBtn.addEventListener('click', () => {
+        tokenInput.value = state.config.token;
+        usernameInput.value = state.config.username;
+        repoInput.value = state.config.repo;
+        pathInput.value = state.config.path;
+        postalCodeInput.value = state.postalCode;
+        settingsOverlay.classList.add('active');
       });
 
-      document.getElementById('settingsOverlay').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('settingsOverlay')) {
-          document.getElementById('settingsOverlay').classList.remove('active');
+      closeSettingsBtn.addEventListener('click', () => {
+        settingsOverlay.classList.remove('active');
+      });
+
+      settingsOverlay.addEventListener('click', (e) => {
+        if (e.target === settingsOverlay) {
+          settingsOverlay.classList.remove('active');
         }
       });
 
-      document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-        state.config.token = document.getElementById('tokenInput').value.trim();
-        state.config.username = document.getElementById('usernameInput').value.trim();
-        state.config.repo = document.getElementById('repoInput').value.trim();
-        state.config.path = document.getElementById('pathInput').value.trim();
-        const postalCode = document.getElementById('postalCode').value.trim();
+      saveSettingsBtn.addEventListener('click', () => {
+        state.config.token = tokenInput.value.trim();
+        state.config.username = usernameInput.value.trim();
+        state.config.repo = repoInput.value.trim();
+        state.config.path = pathInput.value.trim();
+        const postalCode = postalCodeInput.value.trim();
 
         Storage().saveConfig();
         Storage().saveLocation(postalCode);
-        document.getElementById('settingsOverlay').classList.remove('active');
+        settingsOverlay.classList.remove('active');
         Toast.show('设置已保存');
         loadData();
       });
 
 
 
-      document.getElementById('refreshBtn').addEventListener('click', () => {
+      refreshBtn.addEventListener('click', () => {
         Toast.show('已刷新');
         loadData();
       });
 
-      document.getElementById('saveAllBtn').addEventListener('click', () => {
+      saveAllBtn.addEventListener('click', () => {
         saveAll();
       });
 
       // 删除确认弹窗事件
-      document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-        document.getElementById('deleteConfirmOverlay').classList.remove('active');
+      cancelDeleteBtn.addEventListener('click', () => {
+        deleteConfirmOverlay.classList.remove('active');
         window.currentEntryToDelete = null;
       });
 
-      document.getElementById('deleteConfirmOverlay').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('deleteConfirmOverlay')) {
-          document.getElementById('deleteConfirmOverlay').classList.remove('active');
+      deleteConfirmOverlay.addEventListener('click', (e) => {
+        if (e.target === deleteConfirmOverlay) {
+          deleteConfirmOverlay.classList.remove('active');
           window.currentEntryToDelete = null;
         }
       });
 
-      document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+      confirmDeleteBtn.addEventListener('click', async () => {
         if (!window.currentEntryToDelete) return;
 
         const entryToDelete = window.currentEntryToDelete;
@@ -2080,7 +1477,7 @@
 
         if (originalIndex !== -1) {
           state.entries.splice(originalIndex, 1);
-          document.getElementById('deleteConfirmOverlay').classList.remove('active');
+          deleteConfirmOverlay.classList.remove('active');
 
           // 保存日期字符串，用最简单的方式
           const dateStr = String(entryToDelete.date);
@@ -2105,7 +1502,3 @@
 
       loadData();
     });
-  </script>
-</body>
-
-</html>
