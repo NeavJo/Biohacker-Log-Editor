@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@figliolia/ripples": "^1.0.8"
-  },
-  "devDependencies": {
-    "vite": "^8.0.16"
-  }
-}
