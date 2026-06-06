@@ -1,70 +1,60 @@
-    // 全局光影互动效果
-    const MouseGlowEffect = (() => {
-      const glowElement = document.getElementById('mouse-glow');
-      let mouseX = -1000;
-      let mouseY = -1000;
-      let currentX = -1000;
-      let currentY = -1000;
-      let animationId = null;
+(function() {
+  'use strict';
 
-      const updatePosition = () => {
-        // 使用 requestAnimationFrame 极致顺滑更新位置，无任何 transition
-        currentX = mouseX;
-        currentY = mouseY;
-        glowElement.style.left = currentX + 'px';
-        glowElement.style.top = currentY + 'px';
-        animationId = requestAnimationFrame(updatePosition);
-      };
+  let glowElement = null;
+  let mouseX = 0;
+  let mouseY = 0;
+  let rafId = null;
 
-      const handleMouseMove = (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-      };
+  // 初始化
+  function init() {
+    glowElement = document.getElementById('mouse-glow');
+    if (!glowElement) return;
 
-      const init = () => {
-        if (!glowElement) return;
-        document.addEventListener('mousemove', handleMouseMove, { passive: true });
-        animationId = requestAnimationFrame(updatePosition);
-      };
+    // 鼠标移动监听
+    document.addEventListener('mousemove', function(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    }, { passive: true });
 
-      return { init };
-    })();
+    // 点击监听
+    document.addEventListener('click', function(e) {
+      createRipple(e.clientX, e.clientY);
+    }, { passive: true });
 
-    // 点击波纹动画
-    const ClickRippleEffect = (() => {
-      const createRipple = (x, y) => {
-        const ripple = document.createElement('div');
-        ripple.className = 'click-ripple';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        document.body.appendChild(ripple);
+    // 开始动画循环
+    updatePosition();
+  }
 
-        // 动画结束后自动移除 DOM 节点（双保险）
-        const removeRipple = () => {
-          if (ripple.parentNode) {
-            ripple.remove();
-          }
-        };
+  // 更新光效位置
+  function updatePosition() {
+    if (glowElement) {
+      glowElement.style.left = mouseX + 'px';
+      glowElement.style.top = mouseY + 'px';
+    }
+    rafId = requestAnimationFrame(updatePosition);
+  }
 
-        ripple.addEventListener('animationend', removeRipple);
-        
-        // 备份超时清理，防止 animationend 事件未触发
-        setTimeout(removeRipple, 600);
-      };
+  // 创建点击波纹
+  function createRipple(x, y) {
+    const ripple = document.createElement('div');
+    ripple.className = 'click-ripple';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    document.body.appendChild(ripple);
 
-      const handleClick = (e) => {
-        createRipple(e.clientX, e.clientY);
-      };
+    // 动画结束后移除
+    setTimeout(function() {
+      if (ripple.parentNode) {
+        ripple.parentNode.removeChild(ripple);
+      }
+    }, 500);
+  }
 
-      const init = () => {
-        document.addEventListener('click', handleClick, { passive: true });
-      };
-
-      return { init };
-    })();
-
-    // 初始化鼠标光效
-    document.addEventListener('DOMContentLoaded', () => {
-      MouseGlowEffect.init();
-      ClickRippleEffect.init();
-    });
+  // 页面加载完成后初始化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
