@@ -1,82 +1,3 @@
-    // 波纹效果
-    const RippleEffect = (() => {
-      const canvas = document.getElementById('rippleCanvas');
-      const ctx = canvas.getContext('2d');
-      const ripples = [];
-
-      function init() {
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        animate();
-        scheduleNextRipple();
-      }
-
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-
-      function createRipple(x, y) {
-        ripples.push({
-          x,
-          y,
-          radius: 0,
-          maxRadius: Math.max(canvas.width, canvas.height) * 0.8,
-          opacity: 0.2,
-          lineWidth: 3
-        });
-      }
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // 更新和绘制波纹
-        for (let i = ripples.length - 1; i >= 0; i--) {
-          const ripple = ripples[i];
-          
-          // 增加半径
-          ripple.radius += 2;
-          
-          // 随着半径增大，线条变细
-          ripple.lineWidth = Math.max(0.5, 3 - (ripple.radius / ripple.maxRadius) * 2.5);
-          
-          // 透明度逐渐降低
-          ripple.opacity = 0.2 * (1 - ripple.radius / ripple.maxRadius);
-
-          // 绘制同心圆
-          ctx.beginPath();
-          ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${ripple.opacity})`;
-          ctx.lineWidth = ripple.lineWidth;
-          ctx.stroke();
-
-          // 移除消失的波纹
-          if (ripple.radius >= ripple.maxRadius) {
-            ripples.splice(i, 1);
-          }
-        }
-
-        requestAnimationFrame(animate);
-      }
-
-      function scheduleNextRipple() {
-        // 随机间隔 3000ms 到 8000ms
-        const delay = Math.random() * 5000 + 3000;
-        
-        setTimeout(() => {
-          // 随机位置
-          const x = Math.random() * canvas.width;
-          const y = Math.random() * canvas.height;
-          createRipple(x, y);
-          
-          // 继续调度下一个
-          scheduleNextRipple();
-        }, delay);
-      }
-
-      return { init };
-    })();
-
     const STORAGE_KEYS = {
       token: 'github_token',
       username: 'github_username',
@@ -1457,7 +1378,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       Storage().loadConfig();
       Console.init();
-      RippleEffect.init();
 
       const $ = (id) => document.getElementById(id);
 
