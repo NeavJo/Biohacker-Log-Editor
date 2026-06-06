@@ -1,0 +1,279 @@
+/**
+ * BioHackerEditor 按钮样式总结
+ * 包含所有按钮的静止状态、触摸状态和过渡动画配置
+ * 
+ * 按钮类型:
+ * 1. settings-btn   - 设置按钮 (有下划线动画)
+ * 2. header-btn    - 头部按钮 (无下划线动画)
+ * 3. card-btn      - 卡片内按钮 (无下划线动画)
+ * 4. add-special-btn - 特殊标注按钮 (无下划线动画)
+ */
+
+/* ============================================
+   1. 设置按钮 - 带下划线动画
+   ============================================ */
+
+.settings-btn {
+  /* 盒模型 */
+  box-sizing: border-box;
+  
+  /* 尺寸 - 静止状态 */
+  width: 72px;
+  height: 29px;
+  
+  /* 背景渐变 - 从上到下: 白色 → 绿色 → 深绿 */
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(54, 95, 61, 0.75) 75.48%
+  );
+  
+  /* 边框 - 静止状态 */
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  
+  /* 圆角 - 不对称圆角，左上12px，右上27px，右下8px，左下12px */
+  border-radius: 12px 27px 12px 8px;
+  
+  /* 内边距 */
+  padding: 0 8px;
+  
+  /* 布局 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* 文字样式 */
+  font-size: 12px;
+  font-weight: medium;
+  color: black;
+  
+  /* 过渡动画 - 0.5秒平滑过渡所有属性 */
+  transition: all 0.5s ease;
+}
+
+/* 设置按钮 - 触摸状态 (hover) */
+.settings-btn:hover {
+  /* 尺寸放大1.1倍 */
+  width: 79.2px;  /* 72 * 1.1 */
+  height: 31.9px; /* 29 * 1.1 */
+  
+  /* 背景渐变变化 - 底部颜色变为亮绿色 */
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(186, 255, 199, 0.75) 75.48%  /* 从深绿变为亮绿 */
+  );
+  
+  /* 边框变亮 */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  
+  /* 圆角保持不变 */
+  border-radius: 12px 27px 12px 8px;
+}
+
+/* 设置按钮 - 触摸时文字下划线 (仅此按钮有下划线) */
+.settings-btn:hover span {
+  text-decoration: underline;
+}
+
+
+/* ============================================
+   2. 头部按钮 - 无下划线动画
+   ============================================ */
+
+.header-btn {
+  /* 盒模型 */
+  box-sizing: border-box;
+  
+  /* 尺寸 - 静止状态 */
+  width: 72px;
+  height: 29px;
+  
+  /* 背景渐变 - 与settings-btn相同 */
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(54, 95, 61, 0.75) 75.48%
+  );
+  
+  /* 边框 */
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  
+  /* 圆角 */
+  border-radius: 12px 27px 12px 8px;
+  
+  /* 内边距 */
+  padding: 0 8px;
+  
+  /* 布局 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* 文字样式 */
+  font-size: 12px;
+  font-weight: medium;
+  color: black;
+  
+  /* 过渡动画 */
+  transition: all 0.5s ease;
+}
+
+/* 头部按钮 - 触摸状态 */
+.header-btn:hover {
+  width: 79.2px;
+  height: 31.9px;
+  
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(186, 255, 199, 0.75) 75.48%
+  );
+  
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px 27px 12px 8px;
+}
+
+/* 注意: header-btn 没有下划线动画 */
+
+
+/* ============================================
+   3. 卡片按钮 - 无下划线动画
+   ============================================ */
+
+.card-btn {
+  box-sizing: border-box;
+  
+  /* 尺寸 - 静止状态 (比header-btn略小) */
+  width: 48px;
+  height: 26px;
+  
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(54, 95, 61, 0.75) 75.48%
+  );
+  
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 12px 27px 12px 8px;
+  
+  padding: 0 6px;
+  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  font-size: 11px;
+  font-weight: medium;
+  color: black;
+  
+  transition: all 0.5s ease;
+}
+
+.card-btn:hover {
+  width: 52.8px;  /* 48 * 1.1 */
+  height: 28.6px; /* 26 * 1.1 */
+  
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(186, 255, 199, 0.75) 75.48%
+  );
+  
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px 27px 12px 8px;
+}
+
+
+/* ============================================
+   4. 特殊标注按钮 - 无下划线动画
+   ============================================ */
+
+.add-special-btn {
+  box-sizing: border-box;
+  
+  /* 尺寸 - 静止状态 */
+  width: 40px;
+  height: 26px;
+  
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(54, 95, 61, 0.75) 75.48%
+  );
+  
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 12px 27px 12px 8px;
+  
+  padding: 0 6px;
+  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  font-size: 11px;
+  font-weight: medium;
+  color: black;
+  
+  transition: all 0.5s ease;
+}
+
+.add-special-btn:hover {
+  width: 44px;   /* 40 * 1.1 */
+  height: 28.6px; /* 26 * 1.1 */
+  
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.75) 0%, 
+    rgba(92, 192, 110, 0.75) 39.42%, 
+    rgba(186, 255, 199, 0.75) 75.48%
+  );
+  
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px 27px 12px 8px;
+}
+
+
+/* ============================================
+   通用按钮样式规则总结
+   ============================================
+
+   1. 静止状态共同点:
+      - 渐变背景: 白色 → 绿色 → 深绿
+      - 边框: 1px solid rgba(0, 0, 0, 0.3)
+      - 圆角: 12px 27px 12px 8px (不对称)
+      - 过渡: transition: all 0.5s ease
+
+   2. 触摸状态共同点:
+      - 尺寸放大1.1倍
+      - 渐变背景: 白色 → 绿色 → 亮绿 (底部变亮)
+      - 边框变亮: 1px solid rgba(255, 255, 255, 0.6)
+      - 过渡时间: 0.5秒
+
+   3. 触摸动画配置:
+      - 使用 transition: all 0.5s ease
+      - 同时过渡: 宽度、高度、背景渐变、边框颜色
+      - 禁用: transform: scale() (会导致布局抖动)
+
+   4. 按钮尺寸对比:
+      - settings-btn: 72x29 (hover: 79.2x31.9)
+      - header-btn:  72x29 (hover: 79.2x31.9)
+      - card-btn:    48x26 (hover: 52.8x28.6)
+      - add-special: 40x26 (hover: 44x28.6)
+
+   5. 特殊样式:
+      - settings-btn: 触摸时有下划线 (通过 span text-decoration)
+      - 其他按钮: 无下划线
+
+*/
