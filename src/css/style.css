@@ -407,6 +407,16 @@
       text-decoration: underline;
     }
 
+    /* 所有按钮active状态样式 - 点击下凹效果 */
+    .settings-btn:active,
+    .header-btn:active,
+    .card-btn:active,
+    .add-special-btn:active {
+      box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 4px rgba(255, 255, 255, 0.4);
+      transform: translateY(2px);
+      transition: all 0.1s ease;
+    }
+
     /* 具体按钮尺寸 */
     .settings-btn,
     .header-btn {
@@ -466,7 +476,7 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
-      z-index: 60;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -594,6 +604,14 @@
       border-radius: 12px 27px 12px 8px;
     }
 
+    /* 删除确认按钮active状态样式 - 点击下凹效果 */
+    #cancelDeleteBtn:active,
+    #confirmDeleteBtn:active {
+      box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 4px rgba(255, 255, 255, 0.4);
+      transform: translateY(2px);
+      transition: all 0.1s ease;
+    }
+
     @media (max-width: 768px) {
       #deleteConfirmOverlay .modal-content {
         width: 90%;
@@ -648,6 +666,14 @@
       #confirmDeleteBtn:hover {
         width: 66px;
         height: 28.6px;
+      }
+
+      /* 移动端删除确认按钮active状态样式 */
+      #cancelDeleteBtn:active,
+      #confirmDeleteBtn:active {
+        box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 4px rgba(255, 255, 255, 0.4);
+        transform: translateY(2px);
+        transition: all 0.1s ease;
       }
     }
 
@@ -1108,3 +1134,6 @@
         opacity: 0;
       }
     }
+
+
+

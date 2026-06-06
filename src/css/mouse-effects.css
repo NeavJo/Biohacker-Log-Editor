@@ -1,0 +1,40 @@
+    /* ============================================
+       全局光效层 - 跟随光标的高光
+       ============================================ */
+    #mouse-glow {
+      position: fixed;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, transparent 80%);
+      pointer-events: none;
+      z-index: 100;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+    }
+
+    /* ============================================
+       点击波纹动画
+       ============================================ */
+    .click-ripple {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+      z-index: 90;
+      transform: translate(-50%, -50%);
+      animation: ripple-expand 0.5s ease-out forwards;
+    }
+
+    @keyframes ripple-expand {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+      }
+    }
