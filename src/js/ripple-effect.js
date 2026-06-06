@@ -62,6 +62,7 @@ class RippleEffect {
         dropRadius: this.config.dropRadiusMax,
         perturbance: this.config.perturbance,
         interactive: this.config.interactive,
+        imageUrl: '/Background/windows_vista_9.jpg',
       });
 
       // 等待 Ripples 初始化完成
@@ -91,7 +92,10 @@ class RippleEffect {
       height: 100vh;
       z-index: -1;
       pointer-events: none;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-image: url('/Background/windows_vista_9.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       overflow: hidden;
     `;
 

@@ -11,4 +11,5 @@ export default defineConfig({
     port: 8000,
     open: false,
   },
+  assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.svg', '**/*.ttf'],
 });
