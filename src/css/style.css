@@ -508,6 +508,149 @@
       transform: scale(1);
     }
 
+    /* 删除确认弹窗样式 */
+    #deleteConfirmOverlay .modal-content {
+      box-sizing: border-box;
+      position: absolute;
+      width: 392px;
+      height: 247px;
+      background: linear-gradient(180deg, rgba(255, 113, 113, 0.645) 0%, rgba(255, 0, 0, 0.86) 50%, rgba(153, 0, 0, 0.86) 100%);
+      border: 1px solid rgba(83, 0, 0, 0.5);
+      box-shadow: 4px 7px 4px 1px rgba(0, 0, 0, 0.49), inset 0px -10px 4px 1px rgba(0, 0, 0, 0.4);
+      border-radius: 50px 20px 20px 20px;
+      padding: 24px;
+    }
+
+    #deleteConfirmOverlay .warning-icon {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      top: -25px;
+      left: -25px;
+    }
+
+    #deleteConfirmOverlay .modal-content::before {
+      display: none;
+    }
+
+    #deleteConfirmOverlay .modal-content h2,
+    #deleteConfirmOverlay .modal-content p {
+      color: #fff;
+      font-family: 'SerenityOS Emoji', 'Courier New', Courier, monospace;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    #deleteConfirmOverlay .modal-content h2 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    #deleteConfirmOverlay .modal-content p {
+      font-size: 14px;
+      margin-bottom: 24px;
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    #deleteConfirmOverlay .modal-content .flex {
+      gap: 12px;
+    }
+
+    #cancelDeleteBtn,
+    #confirmDeleteBtn {
+      box-sizing: border-box;
+      width: 72px;
+      height: 29px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75) 0%,
+        rgba(255, 113, 113, 0.75) 39.42%,
+        rgba(153, 0, 0, 0.75) 75.48%
+      );
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px 27px 12px 8px;
+      padding: 0 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: medium;
+      color: #fff;
+      transition: all 0.5s ease;
+    }
+
+    #cancelDeleteBtn:hover,
+    #confirmDeleteBtn:hover {
+      width: 79.2px;
+      height: 31.9px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75) 0%,
+        rgba(255, 113, 113, 0.75) 39.42%,
+        rgba(255, 200, 200, 0.75) 75.48%
+      );
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px 27px 12px 8px;
+    }
+
+    @media (max-width: 768px) {
+      #deleteConfirmOverlay .modal-content {
+        width: 90%;
+        max-width: 350px;
+        height: auto;
+        min-height: 200px;
+        padding: 20px 16px;
+        border-radius: 30px 15px 15px 15px;
+      }
+
+      #deleteConfirmOverlay .modal-content h2 {
+        font-size: 18px;
+      }
+
+      #deleteConfirmOverlay .modal-content p {
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #deleteConfirmOverlay .modal-content {
+        width: 85%;
+        max-width: 300px;
+        min-height: 180px;
+        padding: 16px 12px;
+        border-radius: 25px 12px 12px 12px;
+      }
+
+      #deleteConfirmOverlay .modal-content h2 {
+        font-size: 16px;
+        margin-bottom: 6px;
+      }
+
+      #deleteConfirmOverlay .modal-content p {
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+
+      #deleteConfirmOverlay .modal-content .flex {
+        gap: 8px;
+      }
+
+      #cancelDeleteBtn,
+      #confirmDeleteBtn {
+        width: 60px;
+        height: 26px;
+        font-size: 11px;
+      }
+
+      #cancelDeleteBtn:hover,
+      #confirmDeleteBtn:hover {
+        width: 66px;
+        height: 28.6px;
+      }
+    }
+
     .modal-content h2,
     .modal-content label,
     .modal-content p,
@@ -770,6 +913,10 @@
         margin: 16px !important;
         max-height: 90vh !important;
         overflow-y: auto !important;
+      }
+
+      #deleteConfirmOverlay .modal-content {
+        overflow: visible !important;
       }
 
       .pagination-btn {

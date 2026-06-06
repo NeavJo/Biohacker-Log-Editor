@@ -742,7 +742,14 @@
         },
 
         stringifyAll(entries) {
-          return entries.map(e => this.stringifyDateEntry(e)).join('\n\n');
+          const sortedEntries = [...entries].sort((a, b) => {
+            const [aY, aM, aD] = a.date.split('.').map(Number);
+            const [bY, bM, bD] = b.date.split('.').map(Number);
+            if (aY !== bY) return aY - bY;
+            if (aM !== bM) return aM - bM;
+            return aD - bD;
+          });
+          return sortedEntries.map(e => this.stringifyDateEntry(e)).join('\n\n');
         }
       };
     }
