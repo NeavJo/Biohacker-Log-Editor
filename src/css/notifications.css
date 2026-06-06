@@ -1,0 +1,98 @@
+/* 通知栏容器 */
+.notification-container {
+  position: fixed;
+  top: 120px;
+  right: 0;
+  width: 332px;
+  height: 272px;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: visible;
+}
+
+/* 通知通用样式 */
+.notification-current,
+.notification-previous,
+.notification-previous2 {
+  box-sizing: border-box;
+  position: absolute;
+  right: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(157, 172, 204, 0.85) 26.44%, rgba(59, 89, 153, 0.85) 71.15%);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: -3px 7px 3px 1px rgba(0, 0, 0, 0.43), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 80px 0px 0px 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
+  color: #1a1a2e;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* 通知-当前 */
+.notification-current {
+  width: 284px;
+  height: 101px;
+  top: 0;
+  padding: 10px 40px 10px 30px;
+  font-size: 14px;
+  word-wrap: normal;
+  overflow: visible;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* 通知-之前 */
+.notification-previous {
+  width: 243px;
+  height: 86px;
+  top: 105px;
+  padding: 8px 15px;
+  font-size: 12px;
+}
+
+/* 通知-之前2 */
+.notification-previous2 {
+  width: 243px;
+  height: 86px;
+  top: 195px;
+  padding: 8px 15px;
+  font-size: 12px;
+}
+
+/* 通知进入动画 */
+@keyframes notification-enter {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 通知退出动画 */
+@keyframes notification-exit {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.notification-enter {
+  animation: notification-enter 0.5s ease forwards;
+}
+
+.notification-exit {
+  animation: notification-exit 0.5s ease forwards;
+}
