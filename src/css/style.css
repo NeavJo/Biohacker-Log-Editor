@@ -29,6 +29,7 @@
       width: 100%;
       height: 100px;
       margin-bottom: 24px;
+      z-index: 10;
     }
 
     /* 阴影层 - 专门承载阴影 */
@@ -140,12 +141,18 @@
 
 
 
+    #mainContent {
+      position: relative;
+      z-index: 1;
+    }
+
     .glass-window {
       position: relative;
       width: 70vw;
       max-width: 660px;
       aspect-ratio: 660 / 635;
       margin: 0 auto;
+      z-index: 5;
     }
 
     /* 卡片阴影层 */
