@@ -68,6 +68,7 @@ BioHacker_Editor 是一个简洁、美观的健康日志管理工具，帮助你
 ### 命令列表
 - `create(yyyy.m.d)` - 创建指定日期的卡片
 - `tp(yyyy.m.d)` - 跳转到指定日期的卡片页面
+- `testcard` / `tc` - 生成测试卡片（日期2099.12.31，所有字段填充）
 
 详细命令文档请参考 [Function/console/README.md](Function/console/README.md)。
 

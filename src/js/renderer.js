@@ -187,7 +187,30 @@ function Renderer() {
                 <span class="section-icon text-xl">😴</span>
                 <span class="section-label text-sm font-medium">Sleep</span>
               </div>
-              <input type="text" class="form-input sleep-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${this.reconstructSleep(entry.sleep)}">
+              <div class="pl-8">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs text-gray-400">睡着</span>
+                  <input type="text" class="form-input sleep-hour-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.sleepTime ? entry.sleep.sleepTime.split(':')[0] : ''}" placeholder="时">
+                  <span class="text-gray-400">:</span>
+                  <input type="text" class="form-input sleep-minute-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.sleepTime ? entry.sleep.sleepTime.split(':')[1] : ''}" placeholder="分">
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs text-gray-400">醒来</span>
+                  <input type="text" class="form-input wake-hour-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.wakeTime ? entry.sleep.wakeTime.split(':')[0] : ''}" placeholder="时">
+                  <span class="text-gray-400">:</span>
+                  <input type="text" class="form-input wake-minute-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.wakeTime ? entry.sleep.wakeTime.split(':')[1] : ''}" placeholder="分">
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-gray-400">醒来方式</span>
+                  <div class="wake-type-toggle flex items-center gap-2">
+                    <span class="wake-type-label text-sm ${entry.sleep.wakeType === '苏醒' ? 'text-blue-400 font-medium' : 'text-gray-400'}">苏醒</span>
+                    <button type="button" class="wake-type-btn w-10 h-6 rounded-full relative transition-colors ${entry.sleep.wakeType === '闹钟' ? 'bg-orange-400' : 'bg-blue-400'}">
+                      <span class="wake-type-thumb absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all ${entry.sleep.wakeType === '闹钟' ? 'left-5' : 'left-0.5'}"></span>
+                    </button>
+                    <span class="wake-type-label text-sm ${entry.sleep.wakeType === '闹钟' ? 'text-orange-400 font-medium' : 'text-gray-400'}">闹钟</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="view-mode">
@@ -202,7 +225,20 @@ function Renderer() {
                 <span class="section-icon text-xl">🍽️</span>
                 <span class="section-label text-sm font-medium">Diet</span>
               </div>
-              <textarea class="form-textarea diet-input w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" rows="2">${this.reconstructDiet(entry.diet)}</textarea>
+              <div class="pl-8 space-y-2">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">早饭（可选）</label>
+                  <input type="text" class="form-input diet-breakfast-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.breakfast || ''}" placeholder="早饭">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">午饭</label>
+                  <input type="text" class="form-input diet-lunch-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.lunch || ''}" placeholder="午饭">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">晚饭</label>
+                  <input type="text" class="form-input diet-dinner-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.dinner || ''}" placeholder="晚饭">
+                </div>
+              </div>
             </div>
 
             <div class="view-mode">
@@ -290,6 +326,33 @@ function Renderer() {
         document.getElementById('deleteConfirmOverlay').classList.add('active');
       });
 
+      // 醒来方式切换按钮
+      const wakeTypeBtn = card.querySelector('.wake-type-btn');
+      if (wakeTypeBtn) {
+        wakeTypeBtn.addEventListener('click', () => {
+          const thumb = card.querySelector('.wake-type-thumb');
+          const isAlarm = wakeTypeBtn.classList.contains('bg-orange-400');
+          const labels = card.querySelectorAll('.wake-type-label');
+          if (isAlarm) {
+            // 切换到苏醒
+            wakeTypeBtn.classList.remove('bg-orange-400');
+            wakeTypeBtn.classList.add('bg-blue-400');
+            thumb.classList.remove('left-5');
+            thumb.classList.add('left-0.5');
+            labels[0].className = 'wake-type-label text-sm text-blue-400 font-medium';
+            labels[1].className = 'wake-type-label text-sm text-gray-400';
+          } else {
+            // 切换到闹钟
+            wakeTypeBtn.classList.remove('bg-blue-400');
+            wakeTypeBtn.classList.add('bg-orange-400');
+            thumb.classList.remove('left-0.5');
+            thumb.classList.add('left-5');
+            labels[0].className = 'wake-type-label text-sm text-gray-400';
+            labels[1].className = 'wake-type-label text-sm text-orange-400 font-medium';
+          }
+        });
+      }
+
       card.querySelectorAll('.add-special-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const type = e.target.dataset.type;
@@ -343,8 +406,15 @@ function Renderer() {
 
     collectEntryFromCard(card, originalEntry) {
       const weatherInput = card.querySelector('.weather-input').value;
-      const sleepInput = card.querySelector('.sleep-input').value;
-      const dietInput = card.querySelector('.diet-input').value;
+      const sleepHourInput = card.querySelector('.sleep-hour-input').value;
+      const sleepMinuteInput = card.querySelector('.sleep-minute-input').value;
+      const wakeHourInput = card.querySelector('.wake-hour-input').value;
+      const wakeMinuteInput = card.querySelector('.wake-minute-input').value;
+      const wakeTypeBtn = card.querySelector('.wake-type-btn');
+      const wakeType = wakeTypeBtn.classList.contains('bg-orange-400') ? '闹钟' : '苏醒';
+      const dietBreakfastInput = card.querySelector('.diet-breakfast-input').value;
+      const dietLunchInput = card.querySelector('.diet-lunch-input').value;
+      const dietDinnerInput = card.querySelector('.diet-dinner-input').value;
       const exerciseInput = card.querySelector('.exercise-input').value;
       const noteInput = card.querySelector('.note-input').value;
       const specialNotesInput = card.querySelector('.special-notes-input').value;
@@ -361,11 +431,24 @@ function Renderer() {
         }
       });
 
+      // 构建睡眠时间字符串
+      const sleepTime = sleepHourInput && sleepMinuteInput ? `${sleepHourInput}:${sleepMinuteInput}` : '';
+      const wakeTime = wakeHourInput && wakeMinuteInput ? `${wakeHourInput}:${wakeMinuteInput}` : '';
+
       return {
         date: originalEntry.date,
         weather: Parser().parseWeather(weatherInput),
-        sleep: Parser().parseSleep(sleepInput),
-        diet: Parser().parseDiet(dietInput),
+        sleep: {
+          sleepTime,
+          wakeTime,
+          wakeType,
+          note: originalEntry.sleep.note || ''
+        },
+        diet: {
+          breakfast: dietBreakfastInput,
+          lunch: dietLunchInput,
+          dinner: dietDinnerInput
+        },
         exercise: exerciseInput,
         note: noteInput,
         specialNotes
@@ -419,6 +502,8 @@ function Renderer() {
       }
       if (diet.lunch) {
         parts.push(`午饭：${diet.lunch}`);
+      } else {
+        parts.push('午饭：-');
       }
       parts.push(`晚饭：${diet.dinner || '-'}`);
       return parts.join('\n');
