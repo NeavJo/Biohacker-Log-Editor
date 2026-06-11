@@ -166,7 +166,11 @@ const Console = (() => {
           diet: { breakfast: '全麦面包、牛奶、鸡蛋', lunch: '米饭、清炒西兰花、红烧鱼', dinner: '蔬菜沙拉、糙米、豆腐汤' },
           exercise: '晨跑30分钟，瑜伽45分钟',
           note: '测试数据 - BioHacker Editor 功能演示',
-          specialNotes: ['[+] 坚持健康生活习惯', '[?] 关注体重变化', '[!] 记得定期体检']
+          specialNotes: [
+            { type: '+', text: '坚持健康生活习惯' },
+            { type: '?', text: '关注体重变化' },
+            { type: '!', text: '记得定期体检' }
+          ]
         };
         state.entries.unshift(newEntry);
         state.currentPage = 1;

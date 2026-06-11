@@ -204,8 +204,51 @@ function Renderer() {
                   <span class="text-xs text-gray-400">醒来方式</span>
                   <div class="wake-type-toggle flex items-center gap-2">
                     <span class="wake-type-label text-sm ${entry.sleep.wakeType === '苏醒' ? 'text-blue-400 font-medium' : 'text-gray-400'}">苏醒</span>
-                    <button type="button" class="wake-type-btn w-10 h-6 rounded-full relative transition-colors ${entry.sleep.wakeType === '闹钟' ? 'bg-orange-400' : 'bg-blue-400'}">
-                      <span class="wake-type-thumb absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all ${entry.sleep.wakeType === '闹钟' ? 'left-5' : 'left-0.5'}"></span>
+                    <button type="button" class="wake-type-btn relative transition-all ${entry.sleep.wakeType === '闹钟' ? '' : 'bg-blue-400'}">
+                      <span class="wake-type-thumb absolute rounded-full transition-all ${entry.sleep.wakeType === '闹钟' ? 'left-[22px]' : 'left-[2px]'}">
+                        <svg class="thumb-svg thumb-awake" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="12.5" cy="16.5" r="12.5" fill="url(#paint0_radial_awake)"/>
+                          <circle cx="12.5" cy="16.5" r="12" stroke="black" stroke-opacity="0.11"/>
+                          <path d="M12.613 6.00002C5.71279 6.01538 -0.117027 14.589 2.74525 13.9678C5.60752 13.3466 20.2632 13.4621 22.4808 13.9678C24.6984 14.4735 19.5132 5.98467 12.613 6.00002Z" fill="url(#paint1_linear_awake)" fill-opacity="0.7"/>
+                          <path d="M12.956 24.3681C17.4324 24.1173 20.9823 19.6314 19.1421 20.0424C17.3019 20.4534 7.79024 20.9121 6.33775 20.7378C4.88526 20.5635 8.47955 24.6189 12.956 24.3681Z" fill="url(#paint2_linear_awake)" fill-opacity="0.32"/>
+                          <defs>
+                            <radialGradient id="paint0_radial_awake" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12.5 16.5) rotate(90) scale(12.5)">
+                              <stop offset="0.216346" stop-color="#352EB9"/>
+                              <stop offset="0.608173" stop-color="#4A6CDC"/>
+                              <stop offset="1" stop-color="#5EA9FF"/>
+                            </radialGradient>
+                            <linearGradient id="paint1_linear_awake" x1="12.5" y1="6" x2="12.5" y2="12.5" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#5EA9FF" stop-opacity="0.27"/>
+                            </linearGradient>
+                            <linearGradient id="paint2_linear_awake" x1="13.0293" y1="24.3641" x2="12.853" y2="21.1189" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <svg class="thumb-svg thumb-alarm" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="12.5" cy="16.5" r="12.5" fill="url(#paint0_radial_alarm)"/>
+                          <circle cx="12.5" cy="16.5" r="12" stroke="black" stroke-opacity="0.11"/>
+                          <path d="M12.613 6.00002C5.71279 6.01538 -0.117027 14.589 2.74525 13.9678C5.60752 13.3466 20.2632 13.4621 22.4808 13.9678C24.6984 14.4735 19.5132 5.98467 12.613 6.00002Z" fill="url(#paint1_linear_alarm)" fill-opacity="0.7"/>
+                          <path d="M12.956 24.3681C17.4324 24.1173 20.9823 19.6314 19.1421 20.0424C17.3019 20.4534 7.79024 20.9121 6.33775 20.7378C4.88526 20.5635 8.47955 24.6189 12.956 24.3681Z" fill="url(#paint2_linear_alarm)" fill-opacity="0.32"/>
+                          <defs>
+                            <radialGradient id="paint0_radial_alarm" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12.5 16.5) rotate(90) scale(12.5)">
+                              <stop offset="0.216346" stop-color="#B36600"/>
+                              <stop offset="0.608173" stop-color="#D97B00"/>
+                              <stop offset="1" stop-color="#FF9000"/>
+                            </radialGradient>
+                            <linearGradient id="paint1_linear_alarm" x1="12.5" y1="6" x2="12.5" y2="12.5" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                            <linearGradient id="paint2_linear_alarm" x1="13.0293" y1="24.3641" x2="12.853" y2="21.1189" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </span>
                     </button>
                     <span class="wake-type-label text-sm ${entry.sleep.wakeType === '闹钟' ? 'text-orange-400 font-medium' : 'text-gray-400'}">闹钟</span>
                   </div>
@@ -331,22 +374,24 @@ function Renderer() {
       if (wakeTypeBtn) {
         wakeTypeBtn.addEventListener('click', () => {
           const thumb = card.querySelector('.wake-type-thumb');
-          const isAlarm = wakeTypeBtn.classList.contains('bg-orange-400');
+          const isAlarm = !wakeTypeBtn.classList.contains('bg-blue-400');
           const labels = card.querySelectorAll('.wake-type-label');
           if (isAlarm) {
             // 切换到苏醒
-            wakeTypeBtn.classList.remove('bg-orange-400');
             wakeTypeBtn.classList.add('bg-blue-400');
-            thumb.classList.remove('left-5');
-            thumb.classList.add('left-0.5');
+            if (thumb) {
+              thumb.classList.remove('left-[22px]');
+              thumb.classList.add('left-[2px]');
+            }
             labels[0].className = 'wake-type-label text-sm text-blue-400 font-medium';
             labels[1].className = 'wake-type-label text-sm text-gray-400';
           } else {
             // 切换到闹钟
             wakeTypeBtn.classList.remove('bg-blue-400');
-            wakeTypeBtn.classList.add('bg-orange-400');
-            thumb.classList.remove('left-0.5');
-            thumb.classList.add('left-5');
+            if (thumb) {
+              thumb.classList.remove('left-[2px]');
+              thumb.classList.add('left-[22px]');
+            }
             labels[0].className = 'wake-type-label text-sm text-gray-400';
             labels[1].className = 'wake-type-label text-sm text-orange-400 font-medium';
           }
@@ -354,8 +399,8 @@ function Renderer() {
       }
 
       card.querySelectorAll('.add-special-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const type = e.target.dataset.type;
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.type;
           const textarea = card.querySelector('.special-notes-input');
           const prefix = `[${type}] `;
           const currentValue = textarea.value;
@@ -411,7 +456,7 @@ function Renderer() {
       const wakeHourInput = card.querySelector('.wake-hour-input').value;
       const wakeMinuteInput = card.querySelector('.wake-minute-input').value;
       const wakeTypeBtn = card.querySelector('.wake-type-btn');
-      const wakeType = wakeTypeBtn.classList.contains('bg-orange-400') ? '闹钟' : '苏醒';
+      const wakeType = wakeTypeBtn.classList.contains('bg-blue-400') ? '苏醒' : '闹钟';
       const dietBreakfastInput = card.querySelector('.diet-breakfast-input').value;
       const dietLunchInput = card.querySelector('.diet-lunch-input').value;
       const dietDinnerInput = card.querySelector('.diet-dinner-input').value;
