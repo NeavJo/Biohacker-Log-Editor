@@ -292,3 +292,100 @@
     min-height: 60px !important;
   }
 }
+
+/* 醒来方式切换按钮样式 */
+.wake-type-btn {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* 橙色渐变（闹钟） */
+.wake-type-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #995700 0%, #FF9000 100%);
+  border: 1px solid #B36600;
+  box-shadow: 0px 2px 2.2px rgba(0, 0, 0, 0.54), inset 0px 0px 2.7px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+/* 蓝色渐变（苏醒） */
+.wake-type-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #352EB9 0%, #5EA9FF 100%);
+  border: 1px solid #5853B6;
+  box-shadow: 0px 2px 2.2px rgba(0, 0, 0, 0.54), inset 0px 0px 2.7px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* 苏醒状态 */
+.wake-type-btn.bg-blue-400::before {
+  opacity: 0;
+}
+.wake-type-btn.bg-blue-400::after {
+  opacity: 1;
+}
+
+.wake-type-thumb {
+  width: 22px;
+  height: 22px;
+  overflow: hidden;
+  transition: left 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+  top: 1px;
+  z-index: 10;
+}
+
+.thumb-svg {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 33px;
+  height: 33px;
+  transition: opacity 0.8s ease;
+}
+
+.thumb-awake {
+  left: -2px;
+  opacity: 0;
+}
+
+.thumb-alarm {
+  left: -2px;
+  opacity: 1;
+}
+
+/* 苏醒状态：显示苏醒SVG */
+.wake-type-btn.bg-blue-400 .thumb-awake {
+  opacity: 1;
+}
+.wake-type-btn.bg-blue-400 .thumb-alarm {
+  opacity: 0;
+}
+
+/* 闹钟状态：显示闹钟SVG */
+.wake-type-btn:not(.bg-blue-400) .thumb-awake {
+  opacity: 0;
+}
+.wake-type-btn:not(.bg-blue-400) .thumb-alarm {
+  opacity: 1;
+}

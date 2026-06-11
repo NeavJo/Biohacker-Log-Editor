@@ -211,6 +211,21 @@
     font-size: 12px !important;
     min-width: 36px !important;
   }
+
+  #console {
+    bottom: auto;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 360px;
+  }
+
+  #console.active {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+  }
 }
 
 @media (max-width: 480px) {

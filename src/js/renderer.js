@@ -187,7 +187,73 @@ function Renderer() {
                 <span class="section-icon text-xl">😴</span>
                 <span class="section-label text-sm font-medium">Sleep</span>
               </div>
-              <input type="text" class="form-input sleep-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${this.reconstructSleep(entry.sleep)}">
+              <div class="pl-8">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs text-gray-400">睡着</span>
+                  <input type="text" class="form-input sleep-hour-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.sleepTime ? entry.sleep.sleepTime.split(':')[0] : ''}" placeholder="时">
+                  <span class="text-gray-400">:</span>
+                  <input type="text" class="form-input sleep-minute-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.sleepTime ? entry.sleep.sleepTime.split(':')[1] : ''}" placeholder="分">
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs text-gray-400">醒来</span>
+                  <input type="text" class="form-input wake-hour-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.wakeTime ? entry.sleep.wakeTime.split(':')[0] : ''}" placeholder="时">
+                  <span class="text-gray-400">:</span>
+                  <input type="text" class="form-input wake-minute-input w-12 px-2 py-1 rounded text-sm outline-none text-center" value="${entry.sleep.wakeTime ? entry.sleep.wakeTime.split(':')[1] : ''}" placeholder="分">
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-gray-400">醒来方式</span>
+                  <div class="wake-type-toggle flex items-center gap-2">
+                    <span class="wake-type-label text-sm ${entry.sleep.wakeType === '苏醒' ? 'text-blue-400 font-medium' : 'text-gray-400'}">苏醒</span>
+                    <button type="button" class="wake-type-btn relative transition-all ${entry.sleep.wakeType === '闹钟' ? '' : 'bg-blue-400'}">
+                      <span class="wake-type-thumb absolute rounded-full transition-all ${entry.sleep.wakeType === '闹钟' ? 'left-[22px]' : 'left-[2px]'}">
+                        <svg class="thumb-svg thumb-awake" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="12.5" cy="16.5" r="12.5" fill="url(#paint0_radial_awake)"/>
+                          <circle cx="12.5" cy="16.5" r="12" stroke="black" stroke-opacity="0.11"/>
+                          <path d="M12.613 6.00002C5.71279 6.01538 -0.117027 14.589 2.74525 13.9678C5.60752 13.3466 20.2632 13.4621 22.4808 13.9678C24.6984 14.4735 19.5132 5.98467 12.613 6.00002Z" fill="url(#paint1_linear_awake)" fill-opacity="0.7"/>
+                          <path d="M12.956 24.3681C17.4324 24.1173 20.9823 19.6314 19.1421 20.0424C17.3019 20.4534 7.79024 20.9121 6.33775 20.7378C4.88526 20.5635 8.47955 24.6189 12.956 24.3681Z" fill="url(#paint2_linear_awake)" fill-opacity="0.32"/>
+                          <defs>
+                            <radialGradient id="paint0_radial_awake" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12.5 16.5) rotate(90) scale(12.5)">
+                              <stop offset="0.216346" stop-color="#352EB9"/>
+                              <stop offset="0.608173" stop-color="#4A6CDC"/>
+                              <stop offset="1" stop-color="#5EA9FF"/>
+                            </radialGradient>
+                            <linearGradient id="paint1_linear_awake" x1="12.5" y1="6" x2="12.5" y2="12.5" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#5EA9FF" stop-opacity="0.27"/>
+                            </linearGradient>
+                            <linearGradient id="paint2_linear_awake" x1="13.0293" y1="24.3641" x2="12.853" y2="21.1189" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <svg class="thumb-svg thumb-alarm" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="12.5" cy="16.5" r="12.5" fill="url(#paint0_radial_alarm)"/>
+                          <circle cx="12.5" cy="16.5" r="12" stroke="black" stroke-opacity="0.11"/>
+                          <path d="M12.613 6.00002C5.71279 6.01538 -0.117027 14.589 2.74525 13.9678C5.60752 13.3466 20.2632 13.4621 22.4808 13.9678C24.6984 14.4735 19.5132 5.98467 12.613 6.00002Z" fill="url(#paint1_linear_alarm)" fill-opacity="0.7"/>
+                          <path d="M12.956 24.3681C17.4324 24.1173 20.9823 19.6314 19.1421 20.0424C17.3019 20.4534 7.79024 20.9121 6.33775 20.7378C4.88526 20.5635 8.47955 24.6189 12.956 24.3681Z" fill="url(#paint2_linear_alarm)" fill-opacity="0.32"/>
+                          <defs>
+                            <radialGradient id="paint0_radial_alarm" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12.5 16.5) rotate(90) scale(12.5)">
+                              <stop offset="0.216346" stop-color="#B36600"/>
+                              <stop offset="0.608173" stop-color="#D97B00"/>
+                              <stop offset="1" stop-color="#FF9000"/>
+                            </radialGradient>
+                            <linearGradient id="paint1_linear_alarm" x1="12.5" y1="6" x2="12.5" y2="12.5" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                            <linearGradient id="paint2_linear_alarm" x1="13.0293" y1="24.3641" x2="12.853" y2="21.1189" gradientUnits="userSpaceOnUse">
+                              <stop stop-color="white"/>
+                              <stop offset="1" stop-color="#D97B00" stop-opacity="0.27"/>
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </span>
+                    </button>
+                    <span class="wake-type-label text-sm ${entry.sleep.wakeType === '闹钟' ? 'text-orange-400 font-medium' : 'text-gray-400'}">闹钟</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="view-mode">
@@ -202,7 +268,20 @@ function Renderer() {
                 <span class="section-icon text-xl">🍽️</span>
                 <span class="section-label text-sm font-medium">Diet</span>
               </div>
-              <textarea class="form-textarea diet-input w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" rows="2">${this.reconstructDiet(entry.diet)}</textarea>
+              <div class="pl-8 space-y-2">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">早饭（可选）</label>
+                  <input type="text" class="form-input diet-breakfast-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.breakfast || ''}" placeholder="早饭">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">午饭</label>
+                  <input type="text" class="form-input diet-lunch-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.lunch || ''}" placeholder="午饭">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">晚饭</label>
+                  <input type="text" class="form-input diet-dinner-input w-full px-3 py-2 rounded-lg text-sm outline-none" value="${entry.diet.dinner || ''}" placeholder="晚饭">
+                </div>
+              </div>
             </div>
 
             <div class="view-mode">
@@ -290,9 +369,38 @@ function Renderer() {
         document.getElementById('deleteConfirmOverlay').classList.add('active');
       });
 
+      // 醒来方式切换按钮
+      const wakeTypeBtn = card.querySelector('.wake-type-btn');
+      if (wakeTypeBtn) {
+        wakeTypeBtn.addEventListener('click', () => {
+          const thumb = card.querySelector('.wake-type-thumb');
+          const isAlarm = !wakeTypeBtn.classList.contains('bg-blue-400');
+          const labels = card.querySelectorAll('.wake-type-label');
+          if (isAlarm) {
+            // 切换到苏醒
+            wakeTypeBtn.classList.add('bg-blue-400');
+            if (thumb) {
+              thumb.classList.remove('left-[22px]');
+              thumb.classList.add('left-[2px]');
+            }
+            labels[0].className = 'wake-type-label text-sm text-blue-400 font-medium';
+            labels[1].className = 'wake-type-label text-sm text-gray-400';
+          } else {
+            // 切换到闹钟
+            wakeTypeBtn.classList.remove('bg-blue-400');
+            if (thumb) {
+              thumb.classList.remove('left-[2px]');
+              thumb.classList.add('left-[22px]');
+            }
+            labels[0].className = 'wake-type-label text-sm text-gray-400';
+            labels[1].className = 'wake-type-label text-sm text-orange-400 font-medium';
+          }
+        });
+      }
+
       card.querySelectorAll('.add-special-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const type = e.target.dataset.type;
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.type;
           const textarea = card.querySelector('.special-notes-input');
           const prefix = `[${type}] `;
           const currentValue = textarea.value;
@@ -343,8 +451,15 @@ function Renderer() {
 
     collectEntryFromCard(card, originalEntry) {
       const weatherInput = card.querySelector('.weather-input').value;
-      const sleepInput = card.querySelector('.sleep-input').value;
-      const dietInput = card.querySelector('.diet-input').value;
+      const sleepHourInput = card.querySelector('.sleep-hour-input').value;
+      const sleepMinuteInput = card.querySelector('.sleep-minute-input').value;
+      const wakeHourInput = card.querySelector('.wake-hour-input').value;
+      const wakeMinuteInput = card.querySelector('.wake-minute-input').value;
+      const wakeTypeBtn = card.querySelector('.wake-type-btn');
+      const wakeType = wakeTypeBtn.classList.contains('bg-blue-400') ? '苏醒' : '闹钟';
+      const dietBreakfastInput = card.querySelector('.diet-breakfast-input').value;
+      const dietLunchInput = card.querySelector('.diet-lunch-input').value;
+      const dietDinnerInput = card.querySelector('.diet-dinner-input').value;
       const exerciseInput = card.querySelector('.exercise-input').value;
       const noteInput = card.querySelector('.note-input').value;
       const specialNotesInput = card.querySelector('.special-notes-input').value;
@@ -361,11 +476,24 @@ function Renderer() {
         }
       });
 
+      // 构建睡眠时间字符串
+      const sleepTime = sleepHourInput && sleepMinuteInput ? `${sleepHourInput}:${sleepMinuteInput}` : '';
+      const wakeTime = wakeHourInput && wakeMinuteInput ? `${wakeHourInput}:${wakeMinuteInput}` : '';
+
       return {
         date: originalEntry.date,
         weather: Parser().parseWeather(weatherInput),
-        sleep: Parser().parseSleep(sleepInput),
-        diet: Parser().parseDiet(dietInput),
+        sleep: {
+          sleepTime,
+          wakeTime,
+          wakeType,
+          note: originalEntry.sleep.note || ''
+        },
+        diet: {
+          breakfast: dietBreakfastInput,
+          lunch: dietLunchInput,
+          dinner: dietDinnerInput
+        },
         exercise: exerciseInput,
         note: noteInput,
         specialNotes
@@ -419,6 +547,8 @@ function Renderer() {
       }
       if (diet.lunch) {
         parts.push(`午饭：${diet.lunch}`);
+      } else {
+        parts.push('午饭：-');
       }
       parts.push(`晚饭：${diet.dinner || '-'}`);
       return parts.join('\n');

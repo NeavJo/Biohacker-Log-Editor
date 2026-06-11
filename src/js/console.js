@@ -153,6 +153,33 @@ const Console = (() => {
       return;
     }
 
+    // testcard/tc 命令 - 生成测试卡片（日期2099.12.31，所有字段填充）
+    if (cmd === 'testcard' || cmd === 'tc') {
+      const testDate = '2099.12.31';
+      if (state.entries.some(entry => entry.date === testDate)) {
+        Toast.show(`Card for ${testDate} already exists.`, 'error');
+      } else {
+        const newEntry = {
+          date: testDate,
+          weather: { description: '晴', tempLow: 18, tempHigh: 26, note: '适宜活动' },
+          sleep: { sleepTime: '23:00', wakeTime: '07:30', wakeType: '自然醒', note: '睡眠质量良好' },
+          diet: { breakfast: '全麦面包、牛奶、鸡蛋', lunch: '米饭、清炒西兰花、红烧鱼', dinner: '蔬菜沙拉、糙米、豆腐汤' },
+          exercise: '晨跑30分钟，瑜伽45分钟',
+          note: '测试数据 - BioHacker Editor 功能演示',
+          specialNotes: [
+            { type: '+', text: '坚持健康生活习惯' },
+            { type: '?', text: '关注体重变化' },
+            { type: '!', text: '记得定期体检' }
+          ]
+        };
+        state.entries.unshift(newEntry);
+        state.currentPage = 1;
+        Renderer().renderCards(state.entries);
+        Toast.show(`Created test card for ${testDate}`);
+      }
+      return;
+    }
+
     // 未知命令
     Toast.show('unknown command.');
   };
