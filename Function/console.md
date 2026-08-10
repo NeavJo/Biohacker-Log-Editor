@@ -84,7 +84,66 @@ tp(2024.6.15)   # 跳转到 2024年6月15日 卡片所在页面
 
 ---
 
-### 3. testcard/tc - 生成测试卡片
+### 3. exportcfg - 导出设置数据
+
+**格式：**
+```
+exportcfg
+```
+
+**功能：**
+- 将当前已配置的 GitHub Token、用户名、仓库名、文件路径导出为 JSON 文件
+- 文件名格式：`biohacker-config-YYYY-MM-DD.json`
+- 导出后弹出通知提醒妥善保存，切勿泄露 Token
+
+**导出的 JSON 结构：**
+```json
+{
+  "biohacker_editor_config": true,
+  "version": 1,
+  "exportedAt": "2026-06-08T...",
+  "token": "ghp_...",
+  "username": "your-name",
+  "repo": "health-log",
+  "path": "health.txt"
+}
+```
+
+**示例：**
+```
+exportcfg   # 导出当前设置
+```
+
+**错误提示：**
+- `当前没有可导出的设置数据` - 所有配置项均为空
+
+---
+
+### 4. importcfg - 导入设置数据
+
+**格式：**
+```
+importcfg
+```
+
+**功能：**
+- 打开文件管理器选择通过 `exportcfg` 导出的 JSON 文件
+- 将 JSON 中的配置自动写入 localStorage 并更新内存状态
+- 仅导入存在且非空的字段
+
+**示例：**
+```
+importcfg   # 选择文件并导入设置
+```
+
+**错误提示：**
+- `无效的配置文件格式` - 选中的文件不是 BioHacker Editor 导出的配置
+- `导入失败：...` - JSON 解析错误或其他异常
+- `配置文件中没有可导入的字段` - 文件格式有效但没有非空字段
+
+---
+
+### 5. testcard/tc - 生成测试卡片
 
 **格式：**
 ```

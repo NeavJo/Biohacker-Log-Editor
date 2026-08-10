@@ -35,7 +35,8 @@ async function createNewEntry() {
     diet: { breakfast: '', lunch: '', dinner: '' },
     exercise: '',
     note: '',
-    specialNotes: []
+    specialNotes: [],
+    _isNewUnsaved: true
   };
 
   state.entries.unshift(newEntry);

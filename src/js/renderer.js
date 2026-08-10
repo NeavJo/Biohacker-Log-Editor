@@ -8,6 +8,9 @@ function Renderer() {
       container.innerHTML = '';
 
       const sortedEntries = [...entries].sort((a, b) => {
+        // 新建未保存的卡片始终排在最前，保存后再按日期排序
+        if (a._isNewUnsaved && !b._isNewUnsaved) return -1;
+        if (!a._isNewUnsaved && b._isNewUnsaved) return 1;
         const dateA = a.date.split('.').map(Number);
         const dateB = b.date.split('.').map(Number);
         if (dateA[0] !== dateB[0]) return dateB[0] - dateA[0];
@@ -359,6 +362,15 @@ function Renderer() {
 
       cancelBtn.addEventListener('click', () => {
         this.setEditMode(card, false);
+
+        // 仅当这是「新建未保存」的卡片时，取消才移除；已保存过的卡片（哪怕是空的）也保留
+        if (entry._isNewUnsaved) {
+          const idx = state.entries.findIndex(e => e.date === entry.date);
+          if (idx !== -1) {
+            state.entries.splice(idx, 1);
+          }
+        }
+
         this.renderCards(state.entries);
       });
 
@@ -424,6 +436,8 @@ function Renderer() {
           const content = stringifier.stringifyAll(state.entries);
           const result = await Api().putFile(content, `更新健康日志 - ${updatedEntry.date}`);
           Storage().saveSha(result.content.sha);
+          // 保存成功后清除「新建未保存」标记
+          delete state.entries[originalIndex]._isNewUnsaved;
           Toast.show('已保存到 GitHub');
           this.renderCards(state.entries);
         } catch (err) {

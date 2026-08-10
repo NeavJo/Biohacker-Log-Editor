@@ -153,6 +153,88 @@ const Console = (() => {
       return;
     }
 
+    // exportcfg 命令 - 导出设置数据为 JSON 文件
+    if (cmd === 'exportcfg') {
+      if (!state.config.token && !state.config.username && !state.config.repo && !state.config.path) {
+        Toast.show('当前没有可导出的设置数据', 'error');
+        return;
+      }
+      const cfg = {
+        biohacker_editor_config: true,
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        token: state.config.token || '',
+        username: state.config.username || '',
+        repo: state.config.repo || '',
+        path: state.config.path || ''
+      };
+      const jsonStr = JSON.stringify(cfg, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `biohacker-config-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      Toast.show('设置已导出，请妥善保存文件，切勿泄露 Token！', 'warning');
+      return;
+    }
+
+    // importcfg 命令 - 导入设置数据
+    if (cmd === 'importcfg') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (!data.biohacker_editor_config) {
+              Toast.show('无效的配置文件格式', 'error');
+              return;
+            }
+            let changed = false;
+            if (typeof data.token === 'string' && data.token) {
+              state.config.token = data.token;
+              Storage().set(STORAGE_KEYS.token, data.token);
+              changed = true;
+            }
+            if (typeof data.username === 'string' && data.username) {
+              state.config.username = data.username;
+              Storage().set(STORAGE_KEYS.username, data.username);
+              changed = true;
+            }
+            if (typeof data.repo === 'string' && data.repo) {
+              state.config.repo = data.repo;
+              Storage().set(STORAGE_KEYS.repo, data.repo);
+              changed = true;
+            }
+            if (typeof data.path === 'string' && data.path) {
+              state.config.path = data.path;
+              Storage().set(STORAGE_KEYS.path, data.path);
+              changed = true;
+            }
+            if (changed) {
+              Toast.show('设置已成功导入！', 'success');
+            } else {
+              Toast.show('配置文件中没有可导入的字段', 'warning');
+            }
+          } catch (err) {
+            Toast.show(`导入失败：${err.message}`, 'error');
+          }
+        };
+        reader.readAsText(file, 'utf-8');
+      };
+      input.click();
+      return;
+    }
+
     // testcard/tc 命令 - 生成测试卡片（日期2099.12.31，所有字段填充）
     if (cmd === 'testcard' || cmd === 'tc') {
       const testDate = '2099.12.31';
