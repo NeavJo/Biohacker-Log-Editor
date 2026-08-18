@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bio-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12A44B"/>
+      <stop offset="0.45" stop-color="#0B7A36"/>
+      <stop offset="1" stop-color="#053018"/>
+    </linearGradient>
+    <linearGradient id="bio-rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.28"/>
+    </linearGradient>
+    <linearGradient id="bio-highlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bio-pulse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A8F0C0"/>
+      <stop offset="0.5" stop-color="#7BD693"/>
+      <stop offset="1" stop-color="#B9FFC7"/>
+    </linearGradient>
+    <filter id="bio-glow" x="-40%" y="-200%" width="180%" height="500%" filterUnits="objectBoundingBox">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景：深绿渐变圆角方块 -->
+  <rect x="24" y="24" width="464" height="464" rx="104" fill="url(#bio-bg)"/>
+  <!-- 外层描边 -->
+  <rect x="24" y="24" width="464" height="464" rx="104" stroke="rgba(0,0,0,0.55)" stroke-width="4"/>
+  <!-- 玻璃质感边框 -->
+  <rect x="32" y="32" width="448" height="448" rx="96" stroke="url(#bio-rim)" stroke-width="6"/>
+  <!-- 顶部高光 -->
+  <rect x="32" y="32" width="448" height="220" rx="96" fill="url(#bio-highlight)"/>
+
+  <!-- 心跳脉冲线（带辉光） -->
+  <g filter="url(#bio-glow)">
+    <path d="M88 256H196L218 190L256 336L292 150L318 256H424"
+      fill="none" stroke="url(#bio-pulse)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 脉冲线细高光 -->
+  <path d="M88 256H196L218 190L256 336L292 150L318 256H424"
+    fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

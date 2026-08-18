@@ -143,8 +143,8 @@ async function loadData() {
   await loadPromise;
 
   const elapsed = Date.now() - startTime;
-  if (elapsed < 2000) {
-    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+  if (elapsed < 1000) {
+    await new Promise(resolve => setTimeout(resolve, 1000 - elapsed));
   }
 
   await animationPromise;
