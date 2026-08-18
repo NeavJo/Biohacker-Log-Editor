@@ -35,7 +35,8 @@ async function createNewEntry() {
     diet: { breakfast: '', lunch: '', dinner: '' },
     exercise: '',
     note: '',
-    specialNotes: []
+    specialNotes: [],
+    _isNewUnsaved: true
   };
 
   state.entries.unshift(newEntry);
@@ -109,12 +110,16 @@ async function loadData() {
   let loadError = null;
   let animationComplete = false;
 
+  // 进度条最短展示时长（毫秒）
+  const MIN_LOADING_MS = 500;
+
   const animateProgress = async () => {
     updateProgressBar(0);
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // 按最短时长均匀分配每步间隔，避免动画总时长固定拖慢整体加载
+    const stepMs = MIN_LOADING_MS / 101;
 
     for (let i = 0; i <= 100; i += 1) {
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, stepMs));
       updateProgressBar(i);
     }
     animationComplete = true;
@@ -142,8 +147,8 @@ async function loadData() {
   await loadPromise;
 
   const elapsed = Date.now() - startTime;
-  if (elapsed < 2000) {
-    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+  if (elapsed < MIN_LOADING_MS) {
+    await new Promise(resolve => setTimeout(resolve, MIN_LOADING_MS - elapsed));
   }
 
   await animationPromise;

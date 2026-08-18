@@ -68,6 +68,9 @@ BioHacker_Editor 是一个简洁、美观的健康日志管理工具，帮助你
 ### 命令列表
 - `create(yyyy.m.d)` - 创建指定日期的卡片
 - `tp(yyyy.m.d)` - 跳转到指定日期的卡片页面
+- `testcard` / `tc` - 生成测试卡片（日期2099.12.31，所有字段填充）
+- `exportcfg` - 导出 GitHub 设置（Token/用户名/仓库名/路径）为 JSON 文件
+- `importcfg` - 打开文件管理器选择 JSON 文件并导入 GitHub 设置
 
 详细命令文档请参考 [Function/console/README.md](Function/console/README.md)。
 
