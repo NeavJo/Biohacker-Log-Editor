@@ -28,6 +28,19 @@ body::before {
   background-repeat: no-repeat;
 }
 
+/* 移动端：使用最大视口高度绘制背景层，避免地址栏收起/展开导致背景反复缩放 */
+@media (max-width: 768px) {
+  body::before {
+    top: auto;
+    bottom: 0;
+    height: 100vh;
+    height: 100lvh;
+    min-height: 100lvh;
+    background-size: auto 100lvh;
+    background-position: center top;
+  }
+}
+
 /* 设置面板输入框placeholder灰色 */
 #settingsOverlay input::placeholder,
 #settingsOverlay textarea::placeholder {
